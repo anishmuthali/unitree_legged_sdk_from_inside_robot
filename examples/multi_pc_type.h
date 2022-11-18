@@ -19,4 +19,12 @@ struct BBB{
     uint32_t crc;
 };
 
+
+// amarco:
+struct StampedSequence{
+    long sequence_nr=0;
+    double time_stamp=0.0;
+};
+
+
 #endif

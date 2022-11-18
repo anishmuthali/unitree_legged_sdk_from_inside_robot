@@ -38,3 +38,12 @@ target_link_libraries(udp_recv_test ${EXTRA_LIBS})
 # lcm server
 add_executable(lcm_server examples/lcm_server.cpp)
 target_link_libraries(lcm_server ${EXTRA_LIBS})
+
+
+
+# amarco
+add_executable(latency_test_client examples/latency_test_client.cpp)
+target_link_libraries(latency_test_client ${EXTRA_LIBS})
+
+add_executable(latency_test_server examples/latency_test_server.cpp)
+target_link_libraries(latency_test_server ${EXTRA_LIBS})
