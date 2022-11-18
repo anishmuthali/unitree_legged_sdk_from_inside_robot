@@ -1,4 +1,13 @@
-/* amarco */
+/* amarco
+
+    Ping-pong test implementation, to measure the round-time between the computer and the robot
+
+    Borrowed ideas from: https://github.com/farnyser/cpp-ping-pong/blob/master/src/udp.cpp
+
+    Tools like https://github.com/Mellanox/sockperf do not meet our goals, 
+    because we want an idea of the latency using Unitree's libraries
+
+ */
 
 // Notice: This exemple should running on another PC, and make sure the Ethernet is stable.
 
@@ -92,8 +101,9 @@ void Custom::Calc()
 
 
 
-
+    // sseq_client.sequence_nr = -9;
     std::cout << "sseq_client.sequence_nr: "  << sseq_client.sequence_nr << "(before)\n";
+
 
 
     // Keep reading whatever comes back
