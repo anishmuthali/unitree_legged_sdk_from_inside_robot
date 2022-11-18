@@ -15,7 +15,7 @@ class Custom
 {
 
 public:
-    Custom(): udp(8117, "192.168.12.1", 8118, sizeof(AAA), sizeof(BBB)){}
+    Custom(): udp(8118, "localhost", 8117, sizeof(StampedSequence), sizeof(StampedSequence)){}
     void UDPRecv();
     void UDPSend();
     void Calc();
@@ -40,6 +40,8 @@ void Custom::UDPSend()
 
 void Custom::Calc() 
 {
+
+    // printf("Client\n");
 
     // Read whatever is being received from the server:
     udp.GetRecv((char*)&sseq_server);

@@ -6,6 +6,10 @@
 
 #include <stdint.h>
 
+// amarco
+#include <chrono>
+
+
 struct AAA{
     int direction;
     float deepth;
@@ -23,7 +27,7 @@ struct BBB{
 // amarco:
 struct StampedSequence{
     long sequence_nr=0;
-    double time_stamp=0.0;
+    double time_stamp;
 };
 
 
