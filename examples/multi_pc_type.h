@@ -25,10 +25,11 @@ struct BBB{
 
 
 // amarco:
-struct StampedSequence{
-    long sequence_nr=0;
+typedef struct 
+{
+    long sequence_nr;
     double time_stamp;
-};
+} StampedSequence;
 
 
 #endif
