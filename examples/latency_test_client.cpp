@@ -24,13 +24,15 @@ public:
     //     return;
     // }
     // Custom(): udp(8118, "192.168.64.3", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // mac laptop
-    Custom(): udp(8118, "127.0.0.1", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // ubuntu laptop
+    // Custom(): udp(8118, "127.0.0.1", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // ubuntu laptop
+    Custom(): udp(8118, "192.168.12.235", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // robot -> ubuntu laptop
     void UDPRecv();
     void UDPSend();
     void Calc();
 
     UDP udp;
-    float dt = 0.01;
+    // float dt = 0.01;
+    float dt = 0.001;
 
     bool verbo = true;
 
