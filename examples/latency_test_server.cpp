@@ -40,8 +40,8 @@ public:
     void Calc();
 
     UDP udp;
-    // float dt = 0.01;
-    float dt = 0.001;
+    float dt = 0.01;
+    // float dt = 0.001;
 
     // amarco:
     // StampedSequence sseq_server = {0};
