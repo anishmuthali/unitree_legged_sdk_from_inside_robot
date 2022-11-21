@@ -48,10 +48,10 @@ target_link_libraries(latency_test_client ${EXTRA_LIBS})
 add_executable(latency_test_server examples/latency_test_server.cpp)
 target_link_libraries(latency_test_server ${EXTRA_LIBS})
 
-# amarco
-add_subdirectory(pybind11)
-pybind11_add_module(robot_interface python_interface.cpp)
-target_link_libraries(robot_interface ${EXTRA_LIBS})
+# # amarco
+# add_subdirectory(pybind11)
+# pybind11_add_module(robot_interface python_interface.cpp)
+# target_link_libraries(robot_interface ${EXTRA_LIBS})
 
 
 

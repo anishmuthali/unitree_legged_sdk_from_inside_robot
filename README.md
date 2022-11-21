@@ -34,3 +34,28 @@ make
 
 ### Usage
 Run examples with 'sudo' for memory locking.
+
+
+---
+/amarco/
+
+### Include pybind11
+TODO: Inclide it in the git tree; till then:
+1. Clone the repo directly into the folder:
+```bash
+git clone -b stable git@github.com:pybind/pybind11.git
+```
+2. Make sure that the following lines are added to the CMakeLists.txt:
+```makefile
+# amarco
+add_subdirectory(pybind11)
+pybind11_add_module(robot_interface python_interface.cpp)
+target_link_libraries(robot_interface ${EXTRA_LIBS})
+```
+3. Compile
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```

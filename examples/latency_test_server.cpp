@@ -32,7 +32,8 @@ public:
     //     // udp.InitCmdData(sseq_server);
     //     return;
     // }
-    Custom(): udp(8117, "192.168.64.3", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){}
+    // Custom(): udp(8117, "192.168.64.3", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // mac laptop
+    Custom(): udp(8117, "127.0.0.1", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // ubuntu laptop
     void UDPRecv();
     void UDPSend();
     void Calc();
