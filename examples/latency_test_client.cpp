@@ -8,6 +8,9 @@
 
 // amarco:
 #include <iostream>
+#include <unitree_legged_sdk/json.hpp>
+#include <fstream>
+using json = nlohmann::json;
 
 using namespace UNITREE_LEGGED_SDK;
 
@@ -173,8 +176,6 @@ void Custom::Calc()
     udp.GetRecv((char*)&sseq_package);
 
 
-    
-
     // // If it differs from the local copy, send it back:
     // if(sseq_package.mode != sseq_package_local_copy.mode){
     
@@ -205,6 +206,16 @@ int main(void)
 {
     Custom custom;
     // InitEnvironment();
+
+    // https://github.com/nlohmann/json
+    // std::ifstream f("/Users/alonrot/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/example.json", std::ifstream::binary);
+    // json data = json::parse(f);
+    // json data;
+    // f >> data;
+    // std::cout << "data: " << data << "\n";
+
+    // std::cout << "data[pi]: " << data["pi"] << "\n";
+
 
     // amarco: these loops do not guarantee real-time, they're just
     LoopFunc loop_calc("calc_loop",   custom.dt,    boost::bind(&Custom::Calc,    &custom));

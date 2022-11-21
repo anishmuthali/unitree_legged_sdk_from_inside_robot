@@ -32,7 +32,7 @@ public:
     //     // udp.InitCmdData(sseq_server);
     //     return;
     // }
-    Custom(): udp(8117, "192.168.64.3", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(10000){}
+    Custom(): udp(8117, "192.168.64.3", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){}
     void UDPRecv();
     void UDPSend();
     void Calc();
@@ -295,12 +295,13 @@ void Custom::UDPSend()
 void Custom::Calc() 
 {
     
-    if(send_new_number == true && ind_global < 10000){
+    if(send_new_number == true && ind_global < time_elapsed_vec.size()){
 
         std::chrono::duration<double, std::nano> time_dur = std::chrono::high_resolution_clock::now() - time_start;
         sseq_server.footRaiseHeight = time_dur.count() / 1000000000.0; // NOTE: time_dur.count() returns a double
 
-        sseq_server.mode += 1; // Increase sequence
+        // sseq_server.mode += 1; // Increase sequence
+        sseq_server.mode = (sseq_server.mode + 1) % 256; // Increasing sequence; we use 'remainder' to avoid overflow
 
         // Update statistical variables:
         time_elapsed_vec[ind_global] = sseq_server.footRaiseHeight - sseq_client.footRaiseHeight;
@@ -308,6 +309,7 @@ void Custom::Calc()
         std::cout << "elapsed_time: " << time_elapsed_vec[ind_global] << " seconds\n";
 
         // Others:
+        // ind_global = (ind_global + 1) % 10 ;
         ind_global += 1;
         send_new_number = false;
     }
@@ -337,6 +339,12 @@ int main(void)
 
     // Keep sending a message on the loop until it's received back. Store the time stamp and repeat the operation with
     // another number
+
+    // Dump the c++ vector into Python. Several options:
+    // 1) Copy-paste the data from the terminal; it's just a quick test. Or print after data collection as a `np.array([3.4, 6.87, ..., 5.90])`
+    // 2) Start from here: https://stackoverflow.com/questions/6157409/stdvector-to-boostpythonlist
+    // 3) Use pybind11
+
 
 
     // amarco: these loops do not guarantee real-time, they're just
