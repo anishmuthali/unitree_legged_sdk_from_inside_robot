@@ -33,15 +33,15 @@ public:
     //     return;
     // }
     // Custom(): udp(8117, "192.168.64.3", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // mac laptop -> mac laptop
-    Custom(): udp(8117, "127.0.0.1", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // ubuntu laptop -> ubuntu laptop
-    // Custom(): udp(8117, "192.168.12.1", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // ubuntu laptop -> robot
+    // Custom(): udp(8117, "127.0.0.1", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // ubuntu laptop -> ubuntu laptop
+    Custom(): udp(8117, "192.168.12.1", 8118, sizeof(HighCmd), sizeof(HighCmd)), time_elapsed_vec(100000){} // ubuntu laptop -> robot
     void UDPRecv();
     void UDPSend();
     void Calc();
 
     UDP udp;
-    float dt = 0.01;
-    // float dt = 0.001;
+    // float dt = 0.01;
+    float dt = 0.001;
 
     // amarco:
     // StampedSequence sseq_server = {0};

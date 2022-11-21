@@ -24,8 +24,8 @@ public:
     //     return;
     // }
     // Custom(): udp(8118, "192.168.64.3", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // mac laptop -> mac laptop
-    Custom(): udp(8118, "127.0.0.1", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // ubuntu laptop -> ubuntu laptop
-    // Custom(): udp(8118, "192.168.12.235", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // robot -> ubuntu laptop
+    // Custom(): udp(8118, "127.0.0.1", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // ubuntu laptop -> ubuntu laptop
+    Custom(): udp(8118, "192.168.12.235", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // robot -> ubuntu laptop
     void UDPRecv();
     void UDPSend();
     void Calc();
@@ -179,29 +179,30 @@ void Custom::Calc()
     udp.GetRecv((char*)&sseq_package);
     udp.Recv();
 
-    // // If it differs from the local copy, send it back:
-    // if(sseq_package.mode != sseq_package_local_copy.mode){
+    // If it differs from the local copy, send it back:
+    if(sseq_package.mode != sseq_package_local_copy.mode){
     
-    //     udp.SetSend((char*)&sseq_package);
-    //     sseq_package_local_copy.mode = sseq_package.mode;
+        udp.SetSend((char*)&sseq_package);
+        udp.Send();
+        sseq_package_local_copy.mode = sseq_package.mode;
     
-    //     if(verbo == true){
-    //         std::cout << "Bouncing data back (ONLY WHEN DIFFERS FROM LOCAL COPY): \n";
-    //         std::cout << "sseq_package.mode: "  << unsigned(sseq_package.mode) << " (after receiving)\n";
-    //         std::cout << "sseq_package.footRaiseHeight: "  << sseq_package.footRaiseHeight << " seconds (after receiving)\n\n";
-    //     }
+        if(verbo == true){
+            std::cout << "Bouncing data back (ONLY WHEN DIFFERS FROM LOCAL COPY): \n";
+            std::cout << "sseq_package.mode: "  << unsigned(sseq_package.mode) << " (after receiving)\n";
+            std::cout << "sseq_package.footRaiseHeight: "  << sseq_package.footRaiseHeight << " seconds (after receiving)\n\n";
+        }
 
-    // }
-
-
-    // Always send it back:
-    udp.SetSend((char*)&sseq_package);
-    udp.Send();
-    if(verbo == true){
-        std::cout << "Bouncing data back ALWAYS: \n";
-        std::cout << "sseq_package.mode: "  << unsigned(sseq_package.mode) << " (after receiving)\n";
-        std::cout << "sseq_package.footRaiseHeight: "  << sseq_package.footRaiseHeight << " seconds (after receiving)\n\n";
     }
+
+
+    // // Always send it back:
+    // udp.SetSend((char*)&sseq_package);
+    // udp.Send();
+    // if(verbo == true){
+    //     std::cout << "Bouncing data back ALWAYS: \n";
+    //     std::cout << "sseq_package.mode: "  << unsigned(sseq_package.mode) << " (after receiving)\n";
+    //     std::cout << "sseq_package.footRaiseHeight: "  << sseq_package.footRaiseHeight << " seconds (after receiving)\n\n";
+    // }
 
 }
 
