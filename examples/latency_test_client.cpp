@@ -23,16 +23,16 @@ public:
     //     // udp.InitCmdData(sseq_client);
     //     return;
     // }
-    // Custom(): udp(8118, "192.168.64.3", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // mac laptop
-    // Custom(): udp(8118, "127.0.0.1", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // ubuntu laptop
-    Custom(): udp(8118, "192.168.12.235", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // robot -> ubuntu laptop
+    // Custom(): udp(8118, "192.168.64.3", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // mac laptop -> mac laptop
+    Custom(): udp(8118, "127.0.0.1", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // ubuntu laptop -> ubuntu laptop
+    // Custom(): udp(8118, "192.168.12.235", 8117, sizeof(HighCmd), sizeof(HighCmd)){} // robot -> ubuntu laptop
     void UDPRecv();
     void UDPSend();
     void Calc();
 
     UDP udp;
-    // float dt = 0.01;
-    float dt = 0.001;
+    float dt = 0.01;
+    // float dt = 0.001;
 
     bool verbo = true;
 
@@ -177,7 +177,7 @@ void Custom::Calc()
 {
     // Read whatever is being received from the server:
     udp.GetRecv((char*)&sseq_package);
-
+    udp.Recv();
 
     // // If it differs from the local copy, send it back:
     // if(sseq_package.mode != sseq_package_local_copy.mode){
@@ -196,6 +196,7 @@ void Custom::Calc()
 
     // Always send it back:
     udp.SetSend((char*)&sseq_package);
+    udp.Send();
     if(verbo == true){
         std::cout << "Bouncing data back ALWAYS: \n";
         std::cout << "sseq_package.mode: "  << unsigned(sseq_package.mode) << " (after receiving)\n";
@@ -222,11 +223,11 @@ int main(void)
 
     // amarco: these loops do not guarantee real-time, they're just
     LoopFunc loop_calc("calc_loop",   custom.dt,    boost::bind(&Custom::Calc,    &custom));
-    LoopFunc loop_udpSend("udp_send", custom.dt, 3, boost::bind(&Custom::UDPSend, &custom));
-    LoopFunc loop_udpRecv("udp_recv", custom.dt, 3, boost::bind(&Custom::UDPRecv, &custom));
+    // LoopFunc loop_udpSend("udp_send", custom.dt, 3, boost::bind(&Custom::UDPSend, &custom));
+    // LoopFunc loop_udpRecv("udp_recv", custom.dt, 3, boost::bind(&Custom::UDPRecv, &custom));
 
-    loop_udpSend.start();
-    loop_udpRecv.start();
+    // loop_udpSend.start();
+    // loop_udpRecv.start();
     loop_calc.start();
 
     while(1){
