@@ -6,8 +6,9 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <array>
 #include <math.h>
-#include <pybind11/operators.h>
+// #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
 using namespace UNITREE_LEGGED_SDK;
