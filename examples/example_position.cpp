@@ -39,12 +39,12 @@ public:
     int rate_count = 0;
     int sin_count = 0;
     int motiontime = 0;
-    // float dt = 0.002;     // 0.001~0.01
-    float dt = 0.01;     // amarco
+    float dt = 0.002;     // 0.001~0.01
+    // float dt = 0.01;     // amarco
 
     // amarco: data to write:
     std::array<std::string, 13> data_joint_names = {"time_stamp","FR_0","FR_1","FR_2","FL_0","FL_1","FL_2","RR_0","RR_1","RR_2","RL_0","RL_1","RL_2"};
-    std::array< std::array<std::array<float, 1000>, 13> , 5 > data_fields;
+    std::array< std::array<std::array<float, 3000>, 13> , 5 > data_fields;
     std::array<std::string, 5> name_data_fields = {"q_des","q_curr","dq_curr","u_des","u_est"};
     // data_q_des: Desired position for all the joints, [1000,12]
     // data_q_curr: Actual position for all the joints, [1000,12]
@@ -165,7 +165,7 @@ void Custom::RobotControl()
 
     udp.SetSend(cmd);
 
-    if(ind_data < 1000){
+    if(ind_data < data_fields[0][0].size()){
 
         // std::cout << "ind_data: " << std::to_string(ind_data) << "\n";
 
@@ -185,11 +185,11 @@ void Custom::RobotControl()
                 data_fields[4][jj][ind_data] = time_elapsed;
             }
             else{
-                data_fields[0][jj][ind_data] = cmd.motorCmd[jj].q;
-                data_fields[1][jj][ind_data] = state.motorState[jj].q;
-                data_fields[2][jj][ind_data] = state.motorState[jj].dq;
-                data_fields[3][jj][ind_data] = cmd.motorCmd[jj].tau;
-                data_fields[4][jj][ind_data] = state.motorState[jj].tauEst;
+                data_fields[0][jj][ind_data] = cmd.motorCmd[jj-1].q;
+                data_fields[1][jj][ind_data] = state.motorState[jj-1].q;
+                data_fields[2][jj][ind_data] = state.motorState[jj-1].dq;
+                data_fields[3][jj][ind_data] = cmd.motorCmd[jj-1].tau;
+                data_fields[4][jj][ind_data] = state.motorState[jj-1].tauEst;
 
             }
             // data_q_des[ind_data][jj] = cmd.motorCmd[jj].q;
@@ -341,12 +341,12 @@ int main(void)
     loop_udpRecv.start();
     loop_control.start();
 
-    // while(1){
-    //     sleep(1);
-    // };
+    while(1){
+        sleep(10);
+    };
 
 
-    float time_sleep = 11.0;
+    float time_sleep = 7.0;
     std::cout << "Sleeping for " << std::to_string(int(time_sleep)) << " seconds ...\n";
     sleep(time_sleep);
     // std::cout << "Here finally!!! " <<  "!!!\n";
