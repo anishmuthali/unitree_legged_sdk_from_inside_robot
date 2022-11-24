@@ -3,14 +3,16 @@
 ******************************************************************/
 
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
+#include "utils/data_logging.hpp"
 #include <math.h>
 #include <iostream>
 #include <stdio.h>
 #include <stdint.h>
 
-// amarco:
-#include <fstream>
-#include <chrono>
+// // amarco:
+// #include <fstream>
+// #include <chrono>
+// #include <ctime>
 
 using namespace std;
 using namespace UNITREE_LEGGED_SDK;
@@ -21,10 +23,12 @@ class Custom
 public:
     Custom(uint8_t level): safe(LeggedType::Go1), udp(level) {
         udp.InitCmdData(cmd);
+        Initialize();
     }
     void UDPRecv();
     void UDPSend();
     void RobotControl();
+    void Initialize();
 
     Safety safe;
     UDP udp;
@@ -43,8 +47,8 @@ public:
     // float dt = 0.01;     // amarco
 
     // amarco: data to write:
-    std::array<std::string, 13> data_joint_names = {"time_stamp","FR_0","FR_1","FR_2","FL_0","FL_1","FL_2","RR_0","RR_1","RR_2","RL_0","RL_1","RL_2"};
     std::array< std::array<std::array<float, 3000>, 13> , 5 > data_fields;
+    std::array<std::string, 13> data_joint_names = {"time_stamp","FR_0","FR_1","FR_2","FL_0","FL_1","FL_2","RR_0","RR_1","RR_2","RL_0","RL_1","RL_2"};
     std::array<std::string, 5> name_data_fields = {"q_des","q_curr","dq_curr","u_des","u_est"};
     // data_q_des: Desired position for all the joints, [1000,12]
     // data_q_curr: Actual position for all the joints, [1000,12]
@@ -57,7 +61,111 @@ public:
 
     int ind_data = 0;
 
+
+    // template<std::size_t SIZE>
+    // void mulArray(std::array<int, SIZE>& arr, const int multiplier);
+
+
+    // // template<std::size_t SIZE2> // template<std::size_t SIZE_DATA_FIELD_NAMES>
+    // template<std::size_t SIZE_TIME, std::size_t SIZE_JOINT_NAMES, std::size_t SIZE_DATA_FIELD_NAMES, std::size_t SIZE1>
+    // // template<std::size_t SIZE1> // template<std::size_t SIZE_JOINT_NAMES>
+    // void trial_fun(std::array< std::array<std::array<float, SIZE_TIME>, SIZE_JOINT_NAMES> , SIZE_DATA_FIELD_NAMES> & data_fields,
+    //                 std::array<std::string, SIZE1> & data_joint_names);
+
 };
+
+// template<std::size_t SIZE>
+// void Custom::mulArray(std::array<int, SIZE>& arr, const int multiplier) {
+//     for(auto& e : arr) {
+//         e *= multiplier;
+//     }
+
+//     for (auto x : arr) { std::cout << x << " "; }
+//     std::cout << std::endl;
+// }
+
+
+// // template<std::size_t SIZE2> // template<std::size_t SIZE_DATA_FIELD_NAMES>
+// template<std::size_t SIZE_TIME, std::size_t SIZE_JOINT_NAMES, std::size_t SIZE_DATA_FIELD_NAMES, std::size_t SIZE1>
+// // template<std::size_t SIZE1> // template<std::size_t SIZE_JOINT_NAMES>
+// void Custom::trial_fun(std::array< std::array<std::array<float, SIZE_TIME>, SIZE_JOINT_NAMES> , SIZE_DATA_FIELD_NAMES> & data_fields,
+//                         std::array<std::string, SIZE1> & data_joint_names){
+
+
+//     std::cout << "hola!!!!!!!!!!!!!" << "\n";
+
+// }
+
+
+
+void Custom::Initialize(){
+
+    // LowState:
+    state.levelFlag = 0;
+    state.commVersion = 0;
+    state.robotID = 0;
+    state.SN = 0; 
+    state.bandWidth = 0;
+
+    state.imu.quaternion.fill(0.0);
+    state.imu.gyroscope.fill(0.0);
+    state.imu.accelerometer.fill(0.0);
+    state.imu.rpy.fill(0.0);
+    state.imu.temperature = 0;
+
+    for (int ii = 0; ii < state.motorState.size(); ii++) {
+
+        state.motorState[ii].mode = 0;
+        state.motorState[ii].q = 0.0;
+        state.motorState[ii].dq = 0.0;
+        state.motorState[ii].ddq = 0.0;
+        state.motorState[ii].tauEst = 0.0;
+        state.motorState[ii].q_raw = 0.0;
+        state.motorState[ii].dq_raw = 0.0;
+        state.motorState[ii].ddq_raw = 0.0;
+        state.motorState[ii].temperature = 0;
+        state.motorState[ii].reserve.fill(0);
+    }
+
+    state.footForce.fill(0);
+    state.footForceEst.fill(0);
+
+    state.bms.version_h = 0;
+    state.bms.version_l = 0;
+    state.bms.bms_status = 0;
+    state.bms.SOC = 0;
+    state.bms.current = 0;
+    state.bms.cycle = 0;
+
+    state.tick = 0;
+
+    state.wirelessRemote.fill(0);        // wireless commands
+    state.reserve = 0;
+    state.crc = 0;
+
+
+    // LowCmd
+    cmd.levelFlag = 0;
+    cmd.commVersion = 0;
+    cmd.robotID = 0;
+    cmd.SN = 0;
+    cmd.bandWidth = 0;
+    cmd.bms.off = 0;
+    // cmd.bms.reserve;
+
+    // MotorCmd motorCmd[20];
+    for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
+
+        cmd.motorCmd[ii].mode = 0;
+        cmd.motorCmd[ii].q = 0.0;
+        cmd.motorCmd[ii].dq = 0.0;
+        cmd.motorCmd[ii].tau = 0.0;
+        cmd.motorCmd[ii].Kp = 0.0;
+        cmd.motorCmd[ii].Kd = 0.0;
+        cmd.motorCmd[ii].reserve.fill(0);
+    }
+
+}
 
 void Custom::UDPRecv()
 {  
@@ -216,121 +324,63 @@ void Custom::RobotControl()
 }
 
 
+// template<std::size_t SIZE>
+// void mulArray(std::array<int, SIZE>& arr, const int multiplier) {
+//     for(auto& e : arr) {
+//         e *= multiplier;
+//     }
 
-class Write2File
-{
-public:
-    Write2File(std::string filepath, std::string filename_base): filepath_(filepath), filename_base_(filename_base){}
-    void dump(Custom &custom);
-
-    std::string filepath_;
-    std::string filename_base_;
-    std::array<std::string, 5> file_path_named;
-    std::array<std::ofstream, 5> files_vec;
-
-};
-
-void Write2File::dump(Custom &custom){
-
-    // std::array<float, 30> q_des;
-    // std::array<float, 30> q_pos;
-    // std::array<std::string, 2> names;
-
-    
-    
-    // for (std::size_t jj = 0 ; jj < custom.q_des.size() ; jj++)
-    //     custom.q_des[jj] = -7.957393;
-
-    // for (std::size_t jj = 0 ; jj < custom.q_pos.size() ; jj++)
-    //     custom.q_pos[jj] = +5.0947392;
-
-    // custom.names[0] = "q_des";
-    // custom.names[1] = "q_pos";
+//     for (auto x : arr) { std::cout << x << " "; }
+//     std::cout << std::endl;
+// }
 
 
-    // char buffer[8096]; // larger = faster (within limits)
-    ;
-    // file.rdbuf()->pubsetbuf(buffer, sizeof(buffer));
+// template <std::size_t SIZE1, std::size_t SIZE2>
+// void mulMat(std::array<std::array<int, SIZE1>, SIZE2>& mat, const int multiplier) {
 
-    // file.open("/home/ubuntu/mounted_home/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/data_robot.csv", std::ofstream::out | std::ofstream::app);
-    // file.open("/home/ubuntu/mounted_home/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/data_robot.csv", std::ofstream::out | std::ofstream::trunc);
+//     for( auto &row : mat)
+//         for(auto &col : row)
+//             col *= multiplier;
 
-     // std::array<std::string> var_names = {"q_des","q_curr","dq_curr","u_des","u_est"};
+//     for( auto &row : mat){
+//         for(auto &col : row){
+//             std::cout << col << ", ";
+//         }
+//         std::cout << "\n";
+//     }
 
-    // Append names:
-    // std::cout << "here1" << "\n";
-
-
-    for (std::size_t ff = 0 ; ff < custom.name_data_fields.size() ; ff++){
-        file_path_named[ff] = filepath_ + filename_base_ + "_" + custom.name_data_fields[ff] + ".csv";
-        std::cout << "Dumping data to file: " << file_path_named[ff] << "!!!\n";
-        files_vec[ff].open(file_path_named[ff], std::ofstream::out | std::ofstream::trunc);
-    }
-
-    // std::cout << "here2\n";
-
-
-    for (std::size_t ff = 0 ; ff < custom.name_data_fields.size() ; ff++) {
-    
-        // names:
-        for (std::size_t jj = 0 ; jj < custom.data_joint_names.size() ; jj++) {
-            if (jj < custom.data_joint_names.size()-1)
-                files_vec[ff] << custom.data_joint_names[jj] << ",";
-            else
-                files_vec[ff] << custom.data_joint_names[jj];
-        }
-        files_vec[ff] << ";" << "\n";
-
-        // std::cout << "here2.1\n";
-
-        // values:
-        size_t Nrows = custom.data_fields[0][0].size();
-        size_t Ncols = custom.data_fields[0].size();
-        // std::cout << "here2.2\n";
-        // std::cout << "Nrows: " << std::to_string(Nrows) << "\n";
-        // std::cout << "Ncols: " << std::to_string(Ncols) << "\n";
-        for (std::size_t ii = 0 ; ii < Nrows ; ii++) {
-
-            // std::cout << "here2.3\n";
-
-            for (std::size_t jj = 0 ; jj < Ncols ; jj++) {
-
-                // std::cout << "here2.4\n";
-                
-                if (jj < Ncols-1)
-                    files_vec[ff] << custom.data_fields[ff][jj][ii] << ',';
-                else
-                    files_vec[ff] << custom.data_fields[ff][jj][ii] << ';' << "\n";
-            
-            }
-        }
-
-        files_vec[ff].close();
-
-        std::cout << "Done!!! " << "\n";
-
-    }
-
-    // std::cout << "here3\n";
-}
-
+//     std::cout << std::endl;
+// }
 
 
 int main(void)
 {
+
+    std::array<int, 2> arr2 = {1, 2};
+    // mulArray(arr2,2);
+
+    // std::array<std::array<int, 3>, 2> mat2 = { { { {1, 2, 3} }, { { 4, 5, 6} } } };; // [2,3]
+    // mulMat(mat2,2);
+
     std::cout << "Communication level is set to LOW-level." << std::endl
               << "WARNING: Make sure the robot is hung up." << std::endl
               << "Press Enter to continue..." << std::endl;
     std::cin.ignore();
 
 
-    // Log data out:
-    std::string filepath("../examples");
+    std::string rootpath("../examples");
+    // std::string path2folder;
+    // path2folder = get_folder_name_with_time_of_day(rootpath);
+
     std::string filename_base("/data_robot");
-    Write2File write2file(filepath,filename_base);
+    Write2File write2file(rootpath,filename_base);
 
 
     Custom custom(LOWLEVEL);
+
+    // custom.mulArray(arr2,2);
+
+
     
     // InitEnvironment();
     LoopFunc loop_control("control_loop", custom.dt,    boost::bind(&Custom::RobotControl, &custom));
@@ -341,9 +391,9 @@ int main(void)
     loop_udpRecv.start();
     loop_control.start();
 
-    while(1){
-        sleep(10);
-    };
+    // while(1){
+    //     sleep(10);
+    // };
 
 
     float time_sleep = 7.0;
@@ -351,7 +401,11 @@ int main(void)
     sleep(time_sleep);
     // std::cout << "Here finally!!! " <<  "!!!\n";
 
-    write2file.dump(custom);
+    // write2file.dump(custom);
+
+    write2file.dump(custom.data_fields,custom.data_joint_names,custom.name_data_fields);
+
+    // custom.trial_fun(custom.data_fields,custom.data_joint_names);
 
 
     loop_udpSend.shutdown();

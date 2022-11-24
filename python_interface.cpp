@@ -18,6 +18,9 @@ class RobotInterface
 public:
     RobotInterface() : safe(LeggedType::A1), udp(LOWLEVEL){
         // InitEnvironment();
+
+        Initialize(); // amarco
+
     }
     LowState ReceiveObservation();
     void SendCommand(std::array<float, 60> motorcmd);
@@ -25,8 +28,11 @@ public:
 
     UDP udp;
     Safety safe;
-    LowState state = {0};
-    LowCmd cmd = {0};
+    // LowState state = {0};
+    // LowCmd cmd = {0};
+    LowState state;
+    LowCmd cmd;
+
 };
 
 LowState RobotInterface::ReceiveObservation() {
@@ -48,6 +54,80 @@ void RobotInterface::SendCommand(std::array<float, 60> motorcmd) {
     safe.PositionLimit(cmd);
     udp.SetSend(cmd);
     udp.Send();
+}
+
+void RobotInterface::Initialize(){
+
+    // LowState:
+    state.levelFlag = 0;
+    state.commVersion = 0;
+    state.robotID = 0;
+    state.SN = 0; 
+    state.bandWidth = 0;
+
+    state.imu.quaternion.fill(0.0);
+    state.imu.gyroscope.fill(0.0);
+    state.imu.accelerometer.fill(0.0);
+    state.imu.rpy.fill(0.0);
+    state.imu.temperature = 0;
+
+    for (int ii = 0; ii < state.motorState.size(); ii++) {
+
+        state.motorState[ii].mode = 0;
+        state.motorState[ii].q = 0.0;
+        state.motorState[ii].dq = 0.0;
+        state.motorState[ii].ddq = 0.0;
+        state.motorState[ii].tauEst = 0.0;
+        state.motorState[ii].q_raw = 0.0;
+        state.motorState[ii].dq_raw = 0.0;
+        state.motorState[ii].ddq_raw = 0.0;
+        state.motorState[ii].temperature = 0;
+        state.motorState[ii].reserve.fill(0);
+    }
+
+    state.footForce.fill(0);
+    state.footForceEst.fill(0);
+
+    state.bms.version_h = 0;
+    state.bms.version_l = 0;
+    state.bms.bms_status = 0;
+    state.bms.SOC = 0;
+    state.bms.current = 0;
+    state.bms.cycle = 0;
+
+    state.tick = 0;
+
+    state.wirelessRemote.fill(0);        // wireless commands
+    state.reserve = 0;
+    state.crc = 0;
+
+
+    // LowCmd
+    cmd.levelFlag = 0;
+    cmd.commVersion = 0;
+    cmd.robotID = 0;
+    cmd.SN = 0;
+    cmd.bandWidth = 0;
+    // MotorCmd motorCmd[20];
+    cmd.bms.version_h = 0;
+    cmd.bms.version_l = 0;
+    cmd.bms.bms_status = 0;
+    cmd.bms.SOC = 0;
+    cmd.bms.current = 0;
+    cmd.bms.cycle = 0;
+
+
+    for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
+
+        cmd.motorState[ii].mode = 0;
+        cmd.motorState[ii].q = 0.0;
+        cmd.motorState[ii].dq = 0.0;
+        cmd.motorState[ii].tau = 0.0;
+        cmd.motorState[ii].Kp = 0.0;
+        cmd.motorState[ii].Kd = 0.0;
+        cmd.motorState[ii].reserve.fill(0);
+    }
+
 }
 
 namespace py = pybind11;
