@@ -14,10 +14,10 @@ set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
 
 set(CMAKE_CXX_FLAGS "-O3")
 
-# # amarco
-# add_subdirectory(pybind11)
-# pybind11_add_module(robot_interface python_interface.cpp)
-# target_link_libraries(robot_interface ${EXTRA_LIBS})
+# amarco
+add_subdirectory(pybind11)
+pybind11_add_module(robot_interface_go1 python_interface.cpp)
+target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
 
 
 

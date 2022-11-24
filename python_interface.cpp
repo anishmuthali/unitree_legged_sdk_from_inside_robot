@@ -10,53 +10,41 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#include <iostream>
 
 using namespace UNITREE_LEGGED_SDK;
 
-class RobotInterface
+class RobotInterfaceGo1
 {
 public:
-    RobotInterface() : safe(LeggedType::A1), udp(LOWLEVEL){
+    RobotInterfaceGo1() : safe(LeggedType::Go1), udp(LOWLEVEL){
         // InitEnvironment();
 
         Initialize(); // amarco
 
     }
-    LowState ReceiveObservation();
+    // LowState ReceiveObservation();
+    void CollectObservations();
     void SendCommand(std::array<float, 60> motorcmd);
     void Initialize();
 
+    std::array<float, 12> get_joint_pos_curr();
+    std::array<float, 12> get_joint_vel_curr();
+
     UDP udp;
     Safety safe;
-    // LowState state = {0};
-    // LowCmd cmd = {0};
+    // LowState state = {0}; // amarco: commented out
+    // LowCmd cmd = {0}; // amarco: commented out
     LowState state;
     LowCmd cmd;
 
+    // amarco:
+    std::array<float, 12> joint_pos_curr;
+    std::array<float, 12> joint_vel_curr;
+
 };
 
-LowState RobotInterface::ReceiveObservation() {
-    udp.Recv();
-    udp.GetRecv(state);
-    return state;
-}
-
-void RobotInterface::SendCommand(std::array<float, 60> motorcmd) {
-    cmd.levelFlag = 0xff;
-    for (int motor_id = 0; motor_id < 12; motor_id++) {
-        cmd.motorCmd[motor_id].mode = 0x0A;
-        cmd.motorCmd[motor_id].q = motorcmd[motor_id * 5];
-        cmd.motorCmd[motor_id].Kp = motorcmd[motor_id * 5 + 1];
-        cmd.motorCmd[motor_id].dq = motorcmd[motor_id * 5 + 2];
-        cmd.motorCmd[motor_id].Kd = motorcmd[motor_id * 5 + 3];
-        cmd.motorCmd[motor_id].tau = motorcmd[motor_id * 5 + 4];
-    }
-    safe.PositionLimit(cmd);
-    udp.SetSend(cmd);
-    udp.Send();
-}
-
-void RobotInterface::Initialize(){
+void RobotInterfaceGo1::Initialize(){
 
     // LowState:
     state.levelFlag = 0;
@@ -108,37 +96,67 @@ void RobotInterface::Initialize(){
     cmd.robotID = 0;
     cmd.SN = 0;
     cmd.bandWidth = 0;
+    cmd.bms.off = 0;
+    // cmd.bms.reserve;
+
     // MotorCmd motorCmd[20];
-    cmd.bms.version_h = 0;
-    cmd.bms.version_l = 0;
-    cmd.bms.bms_status = 0;
-    cmd.bms.SOC = 0;
-    cmd.bms.current = 0;
-    cmd.bms.cycle = 0;
-
-
     for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
 
-        cmd.motorState[ii].mode = 0;
-        cmd.motorState[ii].q = 0.0;
-        cmd.motorState[ii].dq = 0.0;
-        cmd.motorState[ii].tau = 0.0;
-        cmd.motorState[ii].Kp = 0.0;
-        cmd.motorState[ii].Kd = 0.0;
-        cmd.motorState[ii].reserve.fill(0);
+        cmd.motorCmd[ii].mode = 0;
+        cmd.motorCmd[ii].q = 0.0;
+        cmd.motorCmd[ii].dq = 0.0;
+        cmd.motorCmd[ii].tau = 0.0;
+        cmd.motorCmd[ii].Kp = 0.0;
+        cmd.motorCmd[ii].Kd = 0.0;
+        cmd.motorCmd[ii].reserve.fill(0);
     }
 
 }
 
-namespace py = pybind11;
+void RobotInterfaceGo1::CollectObservations() {
+    udp.Recv();
+    udp.GetRecv(state);
+    return;
+}
 
-// TODO: Expose all of comm.h and the RobotInterface Class.
+std::array<float, 12> RobotInterfaceGo1::get_joint_pos_curr(){
 
-PYBIND11_MODULE(robot_interface, m) {
+    for (int jj = 0; jj < 12; jj++)
+        joint_pos_curr[jj] = state.motorState[jj].q;
+
+    return joint_pos_curr;
+}
+
+std::array<float, 12> RobotInterfaceGo1::get_joint_vel_curr(){
+
+    for (int jj = 0; jj < 12; jj++)
+        joint_vel_curr[jj] = state.motorState[jj].dq;
+
+    return joint_vel_curr;
+}
+
+void RobotInterfaceGo1::SendCommand(std::array<float, 60> motorcmd) {
+    cmd.levelFlag = 0xff;
+    for (int motor_id = 0; motor_id < 12; motor_id++) {
+        cmd.motorCmd[motor_id].mode = 0x0A;
+        cmd.motorCmd[motor_id].q = motorcmd[motor_id * 5];
+        cmd.motorCmd[motor_id].Kp = motorcmd[motor_id * 5 + 1];
+        cmd.motorCmd[motor_id].dq = motorcmd[motor_id * 5 + 2];
+        cmd.motorCmd[motor_id].Kd = motorcmd[motor_id * 5 + 3];
+        cmd.motorCmd[motor_id].tau = motorcmd[motor_id * 5 + 4];
+    }
+    safe.PositionLimit(cmd);
+    udp.SetSend(cmd);
+    udp.Send();
+}
+
+namespace py = pybind11; // amarco: commented out, moved up
+
+PYBIND11_MODULE(robot_interface_go1, m) {
     m.doc() = R"pbdoc(
-          A1 Robot Interface Python Bindings
+          Go1 Robot Interface Python Bindings
           -----------------------
-          .. currentmodule:: a1_robot_interface
+          .. currentmodule:: go1_robot_interface
           .. autosummary::
              :toctree: _generate
       )pbdoc";
@@ -278,10 +296,12 @@ PYBIND11_MODULE(robot_interface, m) {
         .def_readwrite("RecvCRCError", &UDPState::RecvCRCError)
         .def_readwrite("RecvLoseError", &UDPState::RecvLoseError);
 
-    py::class_<RobotInterface>(m, "RobotInterface")
+    py::class_<RobotInterfaceGo1>(m, "RobotInterfaceGo1")
         .def(py::init<>())
-        .def("receive_observation", &RobotInterface::ReceiveObservation)
-        .def("send_command", &RobotInterface::SendCommand);
+        .def("collect_observations", &RobotInterfaceGo1::CollectObservations)
+        .def("send_command", &RobotInterfaceGo1::SendCommand)
+        .def("get_joint_pos_curr", &RobotInterfaceGo1::get_joint_pos_curr)
+        .def("get_joint_vel_curr", &RobotInterfaceGo1::get_joint_vel_curr);
 
     #ifdef VERSION_INFO
       m.attr("__version__") = VERSION_INFO;

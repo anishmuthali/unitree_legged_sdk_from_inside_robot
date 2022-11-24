@@ -114,7 +114,7 @@ namespace UNITREE_LEGGED_SDK
 		uint32_t SN; 
 		uint8_t bandWidth;
 		IMU imu;
-		std::array<MotorState, 20> motorState;
+		std::array<MotorState, 20> motorState; // amarco: The first 12 elements correspond to the joints, as per quadruped.h; see example_torque.cpp or example_position.cpp
 		std::array<int16_t, 4> footForce;              // force sensors
 		std::array<int16_t, 4> footForceEst;           // force sensors
 		// MotorState motorState[20];
@@ -154,7 +154,7 @@ namespace UNITREE_LEGGED_SDK
 		uint8_t bandWidth;
 		IMU imu;
 		// MotorState motorState[20];
-		std::array<MotorState, 20> motorState;    // foot position relative to body
+		std::array<MotorState, 20> motorState;    // foot position relative to body; amarco: The first 12 elements correspond to the joints, as per quadruped.h; see example_torque.cpp or example_position.cpp
 		BmsState bms;
 		// int16_t footForce[4];
 		// int16_t footForceEst[4];
