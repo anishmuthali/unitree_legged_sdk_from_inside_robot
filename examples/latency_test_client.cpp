@@ -213,7 +213,7 @@ int main(void)
     // InitEnvironment();
 
     // https://github.com/nlohmann/json
-    // std::ifstream f("/Users/alonrot/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/example.json", std::ifstream::binary);
+    // std::ifstream f("/Users/alonrot/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/cfg_latency.json", std::ifstream::binary);
     // json data = json::parse(f);
     // json data;
     // f >> data;
