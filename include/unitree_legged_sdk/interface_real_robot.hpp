@@ -54,7 +54,18 @@ public:
 
         joint_pos_init_target << 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
 
+        std::cout << "Safety stuff\n";
+        std::cout << "safe.WattLimit: " << safe.WattLimit << "\n";
+        std::cout << "safe.Wcount: " << safe.Wcount << "\n";
+        std::cout << "safe.Hip_max: " << safe.Hip_max << "\n";
+        std::cout << "safe.Hip_min: " << safe.Hip_min << "\n";
+        std::cout << "safe.Thigh_max: " << safe.Thigh_max << "\n";
+        std::cout << "safe.Thigh_min: " << safe.Thigh_min << "\n";
+        std::cout << "safe.Calf_max: " << safe.Calf_max << "\n";
+        std::cout << "safe.Calf_min;: " << safe.Calf_min << "\n";
 
+        std::cout << "deltaT: " << deltaT << "\n";
+        std::cout << "Njoints: " << Njoints << "\n";
 
     }
 
@@ -69,7 +80,15 @@ public:
     // void set_PD_gains(const std::array<float, 12> & P_gains, const std::array<float, 12> & D_gains);
     void set_PD_gains(const Eigen::Ref<Vector12d> & P_gains, const Eigen::Ref<Vector12d> & D_gains);
 
+    void ControlLoop();
+    void main();
+
     void stand_up(int Nsteps);
+
+    void go2target_linear_interpolation( const Eigen::Ref<Vector12d>& joint_pos_init, 
+                                        const Eigen::Ref<Vector12d>& joint_pos_final,
+                                        Eigen::Ref<Vector12d> joint_pos_interp,
+                                        double rate);
 
     void update_joint_pos_curr();
     void update_joint_vel_curr();
@@ -129,8 +148,6 @@ public:
         actionStd_.setConstant(action_std);
         actionMean_.setZero();
         observation_env_.setZero(Nobs);
-
-
 
         // joint_pos_init_target << 0.0, -1.5245, 0.3435, 1.0, 0.0, 0.0, 1.0, 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
         // joint_pos_init_target << 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;

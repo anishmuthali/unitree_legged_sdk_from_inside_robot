@@ -143,26 +143,17 @@ void RobotInterfaceGo1::SendCommand(const Eigen::Ref<Vector12d>& joint_pos_des,
 
 
     safe.PositionLimit(cmd);
+    int trigger_pow = safe.PowerProtect(cmd,state,1);
+    if (trigger_pow < 0){
+        std::cout << "Power protection triggered exit (!!)\n";
+        exit(-1);
+    }
 
-
-    // TODO: This is not properly called, in purpose so that it fails; figure it out!!
-    // HInt: See the commented code below, from expample_position.cpp
-    safe.PowerProtect();
-    safe.PositionProtect();
-
-
-    // if(motiontime > 10){
-    //     safe.PositionLimit(cmd);
-    //     int res1 = safe.PowerProtect(cmd, state, 1);
-    //     // You can uncomment it for position protection
-    //     // int res2 = safe.PositionProtect(cmd, state, 0.087);
-    //     if(res1 < 0) exit(-1);
-
-    //     // std::cout << "here [custom] 5: " << "\n";
-    // }
-
-
-
+    int trigger_pos = safe.PositionProtect(cmd,state,0.087);
+    if (trigger_pos < 0){
+        std::cout << "Position protection triggered exit (!!)\n";
+        exit(-1);
+    }
 
     udp.SetSend(cmd);
     udp.Send();
@@ -224,7 +215,7 @@ void RobotInterfaceGo1::ControlLoop(){
 void RobotInterfaceGo1::main(){
 
 
-    LoopFunc loop_control("control_loop", deltaT,    boost::bind(&ControlLoop, &this));
+    LoopFunc loop_control("control_loop", deltaT, boost::bind(&RobotInterfaceGo1::ControlLoop, this));
 
     loop_control.start();
 
@@ -247,7 +238,7 @@ void RobotInterfaceGo1::go2target_linear_interpolation( const Eigen::Ref<Vector1
                                                     double rate){
     
     // double rate = std::min(std::max(rate, 0.0), 1.0);
-    joint_pos_interp = joint_pos_init*(1.-rate) + joint_pos_final*rate
+    joint_pos_interp = joint_pos_init*(1.-rate) + joint_pos_final*rate;
 
     return;
 }
@@ -258,13 +249,13 @@ void RobotInterfaceGo1::stand_up(int Nsteps){
     /*
 
 
-    NOTE: This function assumes that ControlLoop() is running inside main()
-
-    Assume that the robot is lying on the floor.
+    Assumption 1) The robot is lying on the floor before calling this, and in low-level mode
+    Assumption 2) This function assumes that ControlLoop() is running inside main()
 
     1) Read the current position
     2) Soft transition to the next one
     3) Create a class that does this smoothonly, something like TransitionBetweenJointPositions
+    4) TODO: Do we need to block the variable joint_pos_des_hold so that it's not read while being written?
 
     */
 
@@ -272,36 +263,6 @@ void RobotInterfaceGo1::stand_up(int Nsteps){
         std::cout << "Control loop is not running, this function returns without dong anything!\n";
         return;
     }
-
-
-    // Figure out how to do this from Python, using the Python wrapper to RobotInterfaceGo1.
-    // Once we got it, code it up here in c++
-
-    // Should be something similar to example position, where we send the robot to a position we want.
-
-    // But for this, we need that:
-    // CollectObservations();
-    // SendCommand();
-    // are called inside a loop:
-    // LoopFunc loop_control("control_loop", custom.dt,    boost::bind(&Custom::RobotControl, &custom));
-
-
-    // We'll have to code here a function that initially reads the position of the robot:
-    // joint_pos_init_target << 0.0, -1.5245, 0.3435, 1.0, 0.0, 0.0, 1.0, 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
-
-
-    // go1_nominal_joint_config = np.array([0.0, -1.5245, 0.3435, 1.0, 0.0, 0.0, 1.0, # (com [Y(green), X(red), Z(blue)], quaternion [1,i,j,k]],...
-    //                                     0.0136, 0.7304, -1.4505,  # FR [hip lateral, hip, knee]
-    //                                     -0.0118, 0.7317, -1.4437, # FL [hip lateral, hip, knee]
-    //                                     0.0105, 0.6590, -1.3903, # RR [hip lateral, hip, knee]
-    //                                     -0.0102, 0.6563, -1.3944]) # RL [hip lateral, hip, knee]
-
-    // We need to read the initial position before setting actionMean_
-    // actionMean_ = gc_init_.tail(Njoints);
-
-
-
-    // TODO: Do we need to block the variable joint_pos_des_hold so that it's not read while being written?
 
 
     int rate_count = 0;
@@ -428,7 +389,8 @@ void GymEnvironmentRealGo1::init() {
 
 
     // Have here a selector of different initialization behaviors:
-    stand_up();
+    int Nsteps = 200;
+    stand_up(Nsteps);
 
 
     return; 
@@ -594,7 +556,9 @@ PYBIND11_MODULE(robot_interface_go1, m) {
         .def("set_PD_gains", &RobotInterfaceGo1::set_PD_gains)
         .def("update_body_linear_velocity", &RobotInterfaceGo1::update_body_linear_velocity)
         .def("update_body_angular_velocity", &RobotInterfaceGo1::update_body_angular_velocity)
-        .def("update_body_orientation", &RobotInterfaceGo1::update_body_orientation);
+        .def("update_body_orientation", &RobotInterfaceGo1::update_body_orientation)
+        .def("main", &RobotInterfaceGo1::main)
+        .def("stand_up", &RobotInterfaceGo1::stand_up);
 
     py::class_<GymEnvironmentRealGo1>(m, "GymEnvironmentRealGo1")
         .def(py::init<>())
