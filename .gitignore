@@ -3,3 +3,5 @@ build*/
 .vscode
 .DS_Store
 *.csv
+*.egg-info
+__pycache__

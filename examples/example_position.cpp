@@ -356,7 +356,7 @@ void Custom::RobotControl()
 int main(void)
 {
 
-    std::array<int, 2> arr2 = {1, 2};
+    // std::array<int, 2> arr2 = {1, 2};
     // mulArray(arr2,2);
 
     // std::array<std::array<int, 3>, 2> mat2 = { { { {1, 2, 3} }, { { 4, 5, 6} } } };; // [2,3]

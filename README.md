@@ -59,3 +59,15 @@ cd build
 cmake ..
 make
 ```
+
+
+### Added Python package `unitree_legged_sdk_python_tools`
+Run
+```bash
+pip install -e .
+```
+Then, in any other python file, outside this repository, do:
+```python
+from unitree_legged_sdk_python_tools.utils.data_parsing import read_cvs_file
+```
+

@@ -39,6 +39,16 @@ void Custom::UDPSend()
 
 void Custom::RobotControl() 
 {
+    /*
+    amarco: So, this is just a PD controller that sends the robot to a zero position.
+    Contrary to example_position.cpp, where the torque is computed by unitree, here we actually send the torque we want
+    There's no feedforward term.
+    Questions:
+    1) Is this desired torque or actual torque?
+    2) What is the role of PosStopF, VelStopF, defined in comm.h ??
+    */
+
+
     motiontime++;
     udp.GetRecv(state);
     // printf("%d\n", motiontime);
