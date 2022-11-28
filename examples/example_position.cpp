@@ -271,7 +271,17 @@ void Custom::RobotControl()
         // std::cout << "here [custom] 5: " << "\n";
     }
 
+    std::cout << "Before sending...\n";
+    std::cout << "cmd.motorCmd[FR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
+    std::cout << "cmd.motorCmd[FR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
+    std::cout << "cmd.motorCmd[FR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
+
     udp.SetSend(cmd);
+
+    std::cout << "After sending...\n";
+    std::cout << "cmd.motorCmd[FR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
+    std::cout << "cmd.motorCmd[FR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
+    std::cout << "cmd.motorCmd[FR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
 
     if(ind_data < data_fields[0][0].size()){
 

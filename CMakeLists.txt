@@ -9,8 +9,19 @@ link_directories(lib /usr/local/lib)
 add_compile_options(-std=c++11) # amarco: this fails in ubuntu
 # add_compile_options(-std=c++14) # amarco: this fails in ubuntu
 
+# if(APPLE)
+# 	set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
+# 	# set(EXTRA_LIBS -pthread libunitree_legged_sdk_arm64.so lcm)
+# elseif(UNIX)
+# # 	set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
+# 	set(EXTRA_LIBS -pthread libunitree_legged_sdk_arm64.so lcm)
+# endif()
+
+
 set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
 # set(EXTRA_LIBS -pthread libunitree_legged_sdk_arm64.so lcm)
+
+
 
 set(CMAKE_CXX_FLAGS "-O3")
 

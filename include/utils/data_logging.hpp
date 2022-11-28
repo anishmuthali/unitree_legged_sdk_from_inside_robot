@@ -145,7 +145,9 @@ std::string Write2File::get_folder_name_with_time_of_day(std::string rootpath, b
         std::cout << "Creating folder: "+path2folder << "\n";
         std::string filepath_command("mkdir -p "+path2folder); // Create command
         char* filepath_command_char = &*filepath_command.begin(); // Convert to char*
-        system(filepath_command_char); // System call
+        std::cout << "Creating folder via system call...\n";
+        int sys_res = system(filepath_command_char); // System call
+        std::cout << "System call result: " << sys_res << "\n";
         std::cout << "Done!" << "\n";
     }
     else{
