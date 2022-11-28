@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(unitree_legged_sdk)
 
 # include_directories(include) # amarco: commented out
-include_directories(include /usr/local/include /usr/local/include/lcm /usr/local/include/eigen3) # amarco added this line
+include_directories(include python_interface_go1/include /usr/local/include /usr/local/include/lcm /usr/local/include/eigen3) # amarco added this line
 
 link_directories(lib /usr/local/lib)
 
@@ -14,9 +14,14 @@ set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
 
 set(CMAKE_CXX_FLAGS "-O3")
 
+# # amarco
+# add_subdirectory(pybind11)
+# pybind11_add_module(robot_interface_go1 interface_real_robot.cpp)
+# target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
+
 # amarco
-add_subdirectory(pybind11)
-pybind11_add_module(robot_interface_go1 interface_real_robot.cpp)
+add_subdirectory(python_interface_go1/pybind11)
+pybind11_add_module(robot_interface_go1 python_interface_go1/src/interface_real_robot.cpp)
 target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
 
 
