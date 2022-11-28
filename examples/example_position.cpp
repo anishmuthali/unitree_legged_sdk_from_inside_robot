@@ -23,12 +23,12 @@ class Custom
 public:
     Custom(uint8_t level): safe(LeggedType::Go1), udp(level) {
         udp.InitCmdData(cmd);
-        Initialize();
+        // Initialize();
     }
     void UDPRecv();
     void UDPSend();
     void RobotControl();
-    void Initialize();
+    // void Initialize();
 
     Safety safe;
     UDP udp;
@@ -98,74 +98,74 @@ public:
 
 
 
-void Custom::Initialize(){
+// void Custom::Initialize(){
 
-    // LowState:
-    state.levelFlag = 0;
-    state.commVersion = 0;
-    state.robotID = 0;
-    state.SN = 0; 
-    state.bandWidth = 0;
+    // // LowState:
+    // state.levelFlag = 0;
+    // state.commVersion = 0;
+    // state.robotID = 0;
+    // state.SN = 0; 
+    // state.bandWidth = 0;
 
-    state.imu.quaternion.fill(0.0);
-    state.imu.gyroscope.fill(0.0);
-    state.imu.accelerometer.fill(0.0);
-    state.imu.rpy.fill(0.0);
-    state.imu.temperature = 0;
+    // state.imu.quaternion.fill(0.0);
+    // state.imu.gyroscope.fill(0.0);
+    // state.imu.accelerometer.fill(0.0);
+    // state.imu.rpy.fill(0.0);
+    // state.imu.temperature = 0;
 
-    for (int ii = 0; ii < state.motorState.size(); ii++) {
+    // for (int ii = 0; ii < state.motorState.size(); ii++) {
 
-        state.motorState[ii].mode = 0;
-        state.motorState[ii].q = 0.0;
-        state.motorState[ii].dq = 0.0;
-        state.motorState[ii].ddq = 0.0;
-        state.motorState[ii].tauEst = 0.0;
-        state.motorState[ii].q_raw = 0.0;
-        state.motorState[ii].dq_raw = 0.0;
-        state.motorState[ii].ddq_raw = 0.0;
-        state.motorState[ii].temperature = 0;
-        state.motorState[ii].reserve.fill(0);
-    }
+    //     state.motorState[ii].mode = 0;
+    //     state.motorState[ii].q = 0.0;
+    //     state.motorState[ii].dq = 0.0;
+    //     state.motorState[ii].ddq = 0.0;
+    //     state.motorState[ii].tauEst = 0.0;
+    //     state.motorState[ii].q_raw = 0.0;
+    //     state.motorState[ii].dq_raw = 0.0;
+    //     state.motorState[ii].ddq_raw = 0.0;
+    //     state.motorState[ii].temperature = 0;
+    //     state.motorState[ii].reserve.fill(0);
+    // }
 
-    state.footForce.fill(0);
-    state.footForceEst.fill(0);
+    // state.footForce.fill(0);
+    // state.footForceEst.fill(0);
 
-    state.bms.version_h = 0;
-    state.bms.version_l = 0;
-    state.bms.bms_status = 0;
-    state.bms.SOC = 0;
-    state.bms.current = 0;
-    state.bms.cycle = 0;
+    // state.bms.version_h = 0;
+    // state.bms.version_l = 0;
+    // state.bms.bms_status = 0;
+    // state.bms.SOC = 0;
+    // state.bms.current = 0;
+    // state.bms.cycle = 0;
 
-    state.tick = 0;
+    // state.tick = 0;
 
-    state.wirelessRemote.fill(0);        // wireless commands
-    state.reserve = 0;
-    state.crc = 0;
+    // state.wirelessRemote.fill(0);        // wireless commands
+    // state.reserve = 0;
+    // state.crc = 0;
 
 
-    // LowCmd
-    cmd.levelFlag = 0;
-    cmd.commVersion = 0;
-    cmd.robotID = 0;
-    cmd.SN = 0;
-    cmd.bandWidth = 0;
-    cmd.bms.off = 0;
-    // cmd.bms.reserve;
+    // // LowCmd
+    // cmd.levelFlag = 0;
+    // cmd.commVersion = 0;
+    // cmd.robotID = 0;
+    // cmd.SN = 0;
+    // cmd.bandWidth = 0;
+    // cmd.bms.off = 0;
+    // // cmd.bms.reserve;
 
-    // MotorCmd motorCmd[20];
-    for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
+    // // MotorCmd motorCmd[20];
+    // for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
 
-        cmd.motorCmd[ii].mode = 0;
-        cmd.motorCmd[ii].q = 0.0;
-        cmd.motorCmd[ii].dq = 0.0;
-        cmd.motorCmd[ii].tau = 0.0;
-        cmd.motorCmd[ii].Kp = 0.0;
-        cmd.motorCmd[ii].Kd = 0.0;
-        cmd.motorCmd[ii].reserve.fill(0);
-    }
+    //     // cmd.motorCmd[ii].mode = 0;
+    //     cmd.motorCmd[ii].q = 0.0;
+    //     cmd.motorCmd[ii].dq = 0.0;
+    //     cmd.motorCmd[ii].tau = 0.0;
+    //     cmd.motorCmd[ii].Kp = 0.0;
+    //     cmd.motorCmd[ii].Kd = 0.0;
+    //     // cmd.motorCmd[ii].reserve.fill(0);
+    // }
 
-}
+// }
 
 void Custom::UDPRecv()
 {  
@@ -271,17 +271,25 @@ void Custom::RobotControl()
         // std::cout << "here [custom] 5: " << "\n";
     }
 
-    std::cout << "Before sending...\n";
-    std::cout << "cmd.motorCmd[FR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
-    std::cout << "cmd.motorCmd[FR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
-    std::cout << "cmd.motorCmd[FR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
-
     udp.SetSend(cmd);
 
-    std::cout << "After sending...\n";
-    std::cout << "cmd.motorCmd[FR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
-    std::cout << "cmd.motorCmd[FR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
-    std::cout << "cmd.motorCmd[FR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
+
+    // std::cout << "After sending...\n";
+    // std::cout << "cmd.motorCmd[FR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
+    // std::cout << "cmd.motorCmd[FR_0].dq: " << cmd.motorCmd[FR_0].dq << "\n";
+    // std::cout << "cmd.motorCmd[FR_0].Kp: " << cmd.motorCmd[FR_0].Kp << "\n";
+    // std::cout << "cmd.motorCmd[FR_0].Kd: " << cmd.motorCmd[FR_0].Kd << "\n";
+    // std::cout << "cmd.motorCmd[FR_0].tau: " << cmd.motorCmd[FR_0].tau << "\n";
+    // std::cout << "cmd.motorCmd[FR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
+    // std::cout << "cmd.motorCmd[FR_1].dq: " << cmd.motorCmd[FR_1].dq << "\n";
+    // std::cout << "cmd.motorCmd[FR_1].Kp: " << cmd.motorCmd[FR_1].Kp << "\n";
+    // std::cout << "cmd.motorCmd[FR_1].Kd: " << cmd.motorCmd[FR_1].Kd << "\n";
+    // std::cout << "cmd.motorCmd[FR_1].tau: " << cmd.motorCmd[FR_1].tau << "\n";
+    // std::cout << "cmd.motorCmd[FR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
+    // std::cout << "cmd.motorCmd[FR_2].dq: " << cmd.motorCmd[FR_2].dq << "\n";
+    // std::cout << "cmd.motorCmd[FR_2].Kp: " << cmd.motorCmd[FR_2].Kp << "\n";
+    // std::cout << "cmd.motorCmd[FR_2].Kd: " << cmd.motorCmd[FR_2].Kd << "\n";
+    // std::cout << "cmd.motorCmd[FR_2].tau: " << cmd.motorCmd[FR_2].tau << "\n";
 
     if(ind_data < data_fields[0][0].size()){
 

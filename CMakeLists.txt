@@ -6,8 +6,7 @@ include_directories(include python_interface_go1/include /usr/local/include /usr
 
 link_directories(lib /usr/local/lib)
 
-add_compile_options(-std=c++11) # amarco: this fails in ubuntu
-# add_compile_options(-std=c++14) # amarco: this fails in ubuntu
+add_compile_options(-std=c++11) 
 
 # if(APPLE)
 # 	set(EXTRA_LIBS -pthread libunitree_legged_sdk_amd64.so lcm)
@@ -30,10 +29,10 @@ set(CMAKE_CXX_FLAGS "-O3")
 # pybind11_add_module(robot_interface_go1 interface_real_robot.cpp)
 # target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
 
-# amarco
-add_subdirectory(python_interface_go1/pybind11)
-pybind11_add_module(robot_interface_go1 python_interface_go1/src/interface_real_robot.cpp)
-target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
+# # amarco
+# add_subdirectory(python_interface_go1/pybind11)
+# pybind11_add_module(robot_interface_go1 python_interface_go1/src/interface_real_robot.cpp)
+# target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
 
 
 
