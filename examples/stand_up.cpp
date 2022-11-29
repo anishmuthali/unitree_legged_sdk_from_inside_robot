@@ -37,12 +37,16 @@ public:
     // float qInit[3]={0};
     float qInit[12]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
     float qDes[12]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+
+    float qStandUp[12]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+
     // float q_target[12] = {0.0, 1.2, -2.0, 0.0, 1.2, -2.0, 0.0, 1.2, -2.0, 0.0, 1.2, -2.0};
     float q_target[12] = {0.015, 0.75, -1.45, 0.015, 0.75, -1.45, 0.015, 0.75, -1.45, -0.015, 0.75, -1.45};
+    // float q_target[12] = {0.0, 0.75, -1.45, 0.0, 0.75, -1.45, 0.0, 0.75, -1.45, -0.0, 0.75, -1.45};
     // TODO: There's a disimliraity in the convention of the URDF VS the real robot; look at the signs...
     // float Kp[12] = {5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0};
     // float Kd[12] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
-    double Kp = 30.0;
+    double Kp = 40.0;
     double Kd = 2.0;
     double time_consume = 0;
     int rate_count = 0;
@@ -51,8 +55,16 @@ public:
     float dt = 0.002;     // 0.001~0.01
     // float dt = 0.01;     // amarco
 
+    
+    int Ndur_read_init_pos = 1000;
+    int Ndur_stand_up = 1000;
+    int Ndur_wait_up = 1500;
+    int Ndur_go2floor = 1000;
+    int Ndur_wait_on_floor = 1000;
+
+
     // amarco: data to write:
-    std::array< std::array<std::array<float, 6000>, 13> , 10 > data_fields;
+    std::array< std::array<std::array<float, 6500>, 13> , 10 > data_fields;
     std::array<std::string, 13> data_joint_names = {"time_stamp","FR_0","FR_1","FR_2","FL_0","FL_1","FL_2","RR_0","RR_1","RR_2","RL_0","RL_1","RL_2"};
     // std::array<std::string, 9> name_data_fields = {"q_des","q_curr","dq_curr","u_des","u_est","ddq_curr","q_raw_curr","dq_raw_curr","ddq_raw_curr"};
     std::array<std::string, 10> name_data_fields = {"q_curr","dq_curr","ddq_curr","q_raw_curr","dq_raw_curr","ddq_raw_curr","u_est","q_des","dq_des","u_des"};
@@ -68,10 +80,12 @@ public:
 
     int ind_data = 0;
 
-    
-    int Nsteps_read_initial_pos = 1000;
-    int Nduration_go_home = 3000;
-    int Nsteps_go_home = Nsteps_read_initial_pos + Nduration_go_home;
+
+
+
+    // int Nsteps_read_initial_pos = 1000;
+
+    // int Nsteps_go_home = Nsteps_read_initial_pos + Nduration_stand_up;
 
 };
 
@@ -104,7 +118,7 @@ void Custom::RobotControl()
         time_start = std::chrono::high_resolution_clock::now();
 
     // Read initial position:
-    if( motiontime >= 0 && motiontime < Nsteps_read_initial_pos){
+    if( motiontime >= 0 && motiontime < Ndur_read_init_pos){
         for(int ii=0; ii < 12; ii++){
             qInit[ii] = state.motorState[ii].q;
         }
@@ -119,7 +133,7 @@ void Custom::RobotControl()
 
     }
 
-    if( motiontime == Nsteps_read_initial_pos){
+    if( motiontime == Ndur_read_init_pos){
 
         for(int ii=0; ii < 12; ii++){
             std::cout << "qInit[" << ii << "] = " << qInit[ii] << "\n";
@@ -127,10 +141,11 @@ void Custom::RobotControl()
 
     }
 
-    // Go home:
-    if( motiontime >= Nsteps_read_initial_pos && motiontime < Nsteps_go_home){
+
+    // Stand up:
+    if( motiontime >= Ndur_read_init_pos && motiontime < (Ndur_read_init_pos + Ndur_stand_up)){
+        double rate = (double)rate_count/(double)Ndur_stand_up;
         rate_count++;
-        double rate = (double)rate_count/(double)Nduration_go_home;
         
         for(int ii=0; ii < 12; ii++){
             qDes[ii] = jointLinearInterpolation(qInit[ii], q_target[ii], rate);
@@ -145,6 +160,82 @@ void Custom::RobotControl()
         }
 
 
+    }
+
+
+    // Wait while standing up and read current position:
+    if( motiontime >= (Ndur_read_init_pos + Ndur_stand_up) && motiontime < (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up)){
+
+        for(int ii=0; ii < 12; ii++){
+            qStandUp[ii] = state.motorState[ii].q;
+        }
+
+        for(int ii=0; ii < 12; ii++){
+            cmd.motorCmd[ii].q = qDes[ii];
+            cmd.motorCmd[ii].dq = 0;
+            cmd.motorCmd[ii].Kp = Kp;
+            cmd.motorCmd[ii].Kd = Kd;
+            cmd.motorCmd[ii].tau = 0.0f;
+        }
+
+        rate_count = 0;
+
+
+    }
+
+    if( motiontime == (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up)){
+
+        for(int ii=0; ii < 12; ii++){
+            std::cout << "qStandUp[" << ii << "] = " << qStandUp[ii] << "\n";
+        }
+
+    }
+
+    // Go down:
+    if( motiontime >= (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up) && motiontime < (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up + Ndur_go2floor)){
+
+        double rate = (double)rate_count/(double)Ndur_go2floor;
+        rate_count++;
+        
+        for(int ii=0; ii < 12; ii++){
+            qDes[ii] = jointLinearInterpolation(qStandUp[ii], qInit[ii], rate);
+        }
+
+        for(int ii=0; ii < 12; ii++){
+            cmd.motorCmd[ii].q = qDes[ii];
+            cmd.motorCmd[ii].dq = 0;
+            cmd.motorCmd[ii].Kp = Kp;
+            cmd.motorCmd[ii].Kd = Kd;
+            cmd.motorCmd[ii].tau = 0.0f;
+        }
+
+    }
+
+    // Wait while down:
+    if( motiontime >= (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up + Ndur_go2floor) && motiontime < (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up + Ndur_go2floor + Ndur_wait_on_floor)){
+
+        for(int ii=0; ii < 12; ii++){
+            cmd.motorCmd[ii].q = qDes[ii];
+            cmd.motorCmd[ii].dq = 0;
+            cmd.motorCmd[ii].Kp = Kp;
+            cmd.motorCmd[ii].Kd = Kd;
+            cmd.motorCmd[ii].tau = 0.0f;
+        }
+
+        rate_count = 0;
+
+
+    }
+
+    if(motiontime >= (Ndur_read_init_pos + Ndur_stand_up + Ndur_wait_up + Ndur_go2floor)){
+
+        for(int ii=0; ii < 12; ii++){
+            cmd.motorCmd[ii].q = qDes[ii];
+            cmd.motorCmd[ii].dq = 0;
+            cmd.motorCmd[ii].Kp = 0.0;
+            cmd.motorCmd[ii].Kd = 0.0;
+            cmd.motorCmd[ii].tau = 0.0f;
+        }
     }
 
     // gravity compensation

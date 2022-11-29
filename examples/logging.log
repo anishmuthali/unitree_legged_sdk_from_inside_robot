@@ -86,3 +86,52 @@ qInit[11] = -2.79926
 
 
 # target position used: float q_target[12] = {0.015, 0.75, -1.45, 0.015, 0.75, -1.45, 0.015, 0.75, -1.45, -0.015, 0.75, -1.45};
+
+
+
+
+# Nov 29, 2022:
+2022_01_13_18_22_50: Kp=30, Kd=2
+
+
+
+
+2022_01_13_18_49_21: Kp=30, Kd=2, going up and down!!
+
+2022_01_13_18_53_47: Kp=40, Kd=2, same
+
+2022_01_13_19_07_44: Kp=40, Kd=2, same (after analyzing pltos)
+
+
+2022_01_13_19_09_17: Kp=40, Kd=2, 4 seconds for movement
+
+2022_01_13_19_24_16: Kp=40, Kd=2, 2 seconds for movement
+
+
+
+2022_01_13_19_28_46: Kp=40, Kd=2, 2 seconds for movement (video recorded, 14:00)
+
+qInit[0] = -0.426913
+qInit[1] = 1.07988
+qInit[2] = -2.6027
+qInit[3] = 0.498489
+qInit[4] = 1.09138
+qInit[5] = -2.63725
+qInit[6] = -0.512356
+qInit[7] = 1.05699
+qInit[8] = -2.65154
+qInit[9] = 0.557954
+qInit[10] = 1.07958
+qInit[11] = -2.65481
+qStandUp[0] = -0.114934
+qStandUp[1] = 0.745857
+qStandUp[2] = -1.56228
+qStandUp[3] = 0.14836
+qStandUp[4] = 0.749308
+qStandUp[5] = -1.55949
+qStandUp[6] = -0.137944
+qStandUp[7] = 0.721029
+qStandUp[8] = -1.59098
+qStandUp[9] = 0.150722
+qStandUp[10] = 0.730778
+qStandUp[11] = -1.56426

@@ -16,26 +16,33 @@ def main():
 
 	# folder_name = "2022_01_13_18_30_55"
 
+	folder_name = "2022_01_13_19_24_16"
+
 	path2data = "./"
 
 	data, file_names, joints_names = read_cvs_file(path2data,folder_name)
 
 	# pdb.set_trace()
 
-	data = data[:,10::,:]
+	# data = data[:,0:5500,:] # 2022_01_13_19_24_16
+
+	pdb.set_trace()
 
 	Njoints = 3
 	k_cut = 0 # Cut the first time steps
 	hdl_fig, hdl_splots = plt.subplots(Njoints,1,figsize=(13,9),sharex=True)
 	hdl_fig.suptitle("Position - Right Leg")
-	for jj in range(Njoints):
+	ind_plot = 0
+	for jj in range(3,Njoints+3):
 		time_stamp = data[0,k_cut::,0] # It's the same for all, q_des, q_curr, etc.
-		hdl_splots[jj].plot(time_stamp,data[1,k_cut::,jj+1],label=file_names[1]) # desired
+		hdl_splots[ind_plot].plot(time_stamp,data[7,k_cut::,jj+1],label=file_names[7]) # desired
 		# hdl_splots[jj].plot(time_stamp[5::],data[0,5::,jj+1],label=file_names[0]) # current (delay compensated)
-		hdl_splots[jj].plot(time_stamp,data[0,:,jj+1],label=file_names[0]) # current
-		hdl_splots[jj].set_title(joints_names[jj])
-		hdl_splots[jj].set_ylabel("angle [rad]")
-		hdl_splots[jj].legend()
+		hdl_splots[ind_plot].plot(time_stamp,data[0,:,jj+1],label=file_names[0]) # current
+		# hdl_splots[jj].plot(time_stamp,data[2,:,jj+1],label=file_names[2]) # raw
+		hdl_splots[ind_plot].set_title(joints_names[jj])
+		hdl_splots[ind_plot].set_ylabel("angle [rad]")
+		hdl_splots[ind_plot].legend()
+		ind_plot += 1
 	hdl_splots[Njoints-1].set_xlabel("time [sec]")
 
 

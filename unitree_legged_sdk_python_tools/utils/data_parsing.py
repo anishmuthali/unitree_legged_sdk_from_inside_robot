@@ -23,7 +23,8 @@ def read_cvs_file(path2data,folder_name):
 
 	# pdb.set_trace()
 
-	data = np.zeros((len(file_names),6001,13))
+	Ndata = 10000 + 1
+	data = np.zeros((len(file_names),Ndata,13))
 	for ff in range(data.shape[0]):
 
 		file_path_full = "{0:s}/{1:s}/data_robot_{2:s}.csv".format(path2data,folder_name,file_names[ff])
