@@ -14,7 +14,7 @@ def main():
 	# folder_name = "2022_11_22_16_46_34"; # inside the robot
 
 
-	folder_name = "2022_01_13_18_30_55"
+	# folder_name = "2022_01_13_18_30_55"
 
 	path2data = "./"
 

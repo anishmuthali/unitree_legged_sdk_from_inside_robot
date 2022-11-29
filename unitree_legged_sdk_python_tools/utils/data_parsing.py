@@ -17,8 +17,9 @@ def read_cvs_file(path2data,folder_name):
 					"Rear Right - Hip Lateral","Rear Right - Hip Forward","Rear Right - Knee",
 					"Rear Right - Hip Lateral","Rear Right - Hip Forward","Rear Right - Knee"]
 
-	file_names = ["q_curr","q_des","dq_curr","u_des","u_est"]
+	# file_names = ["q_curr","q_des","dq_curr","u_des","u_est"]
 	# file_ind = [0,1,2,3,4]
+	file_names = ["q_curr","dq_curr","ddq_curr","q_raw_curr","dq_raw_curr","ddq_raw_curr","u_est","q_des","dq_des","u_des"]
 
 	# pdb.set_trace()
 
@@ -45,3 +46,7 @@ def read_cvs_file(path2data,folder_name):
 				ii += 1
 
 	return data, file_names, joints_names
+
+
+
+	

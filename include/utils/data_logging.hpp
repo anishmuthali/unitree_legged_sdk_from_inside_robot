@@ -32,8 +32,8 @@ public:
     std::string rootpath_;
     std::string filename_base_;
     std::string path2folder_;
-    std::array<std::string, 9> file_path_named;
-    std::array<std::ofstream, 9> files_vec;
+    std::array<std::string, 10> file_path_named;
+    std::array<std::ofstream, 10> files_vec;
 
 };
 
@@ -44,33 +44,11 @@ void Write2File::dump(	std::array< std::array<std::array<float, SIZE_TIME>, SIZE
             std::array<std::string, SIZE_DATA_FIELD_NAMES> & name_data_fields){
 
 
-    // std::array<float, 30> q_des;
-    // std::array<float, 30> q_pos;
-    // std::array<std::string, 2> names;
-
-    
-    
-    // for (std::size_t jj = 0 ; jj < custom.q_des.size() ; jj++)
-    //     custom.q_des[jj] = -7.957393;
-
-    // for (std::size_t jj = 0 ; jj < custom.q_pos.size() ; jj++)
-    //     custom.q_pos[jj] = +5.0947392;
-
-    // custom.names[0] = "q_des";
-    // custom.names[1] = "q_pos";
-
-
     // char buffer[8096]; // larger = faster (within limits)
-    ;
     // file.rdbuf()->pubsetbuf(buffer, sizeof(buffer));
 
-    // file.open("/home/ubuntu/mounted_home/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/data_robot.csv", std::ofstream::out | std::ofstream::app);
-    // file.open("/home/ubuntu/mounted_home/work/code_projects_WIP/unitree_legged_sdk_from_inside_robot/examples/data_robot.csv", std::ofstream::out | std::ofstream::trunc);
-
-     // std::array<std::string> var_names = {"q_des","q_curr","dq_curr","u_des","u_est"};
-
-    // Append names:
     // std::cout << "here1" << "\n";
+    // std::cout << "name_data_fields.size(): " << name_data_fields.size() << "\n";
 
 
     for (std::size_t ff = 0 ; ff < name_data_fields.size() ; ff++){
@@ -119,9 +97,9 @@ void Write2File::dump(	std::array< std::array<std::array<float, SIZE_TIME>, SIZE
 
         files_vec[ff].close();
 
-        std::cout << "Done!!! " << "\n";
-
     }
+
+    std::cout << "Done!!! " << "\n";
 
     // std::cout << "here3\n";
 }
