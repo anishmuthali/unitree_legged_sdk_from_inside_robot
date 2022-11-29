@@ -34,11 +34,16 @@ public:
     UDP udp;
     LowCmd cmd = {0};
     LowState state = {0};
-    float qInit[3]={0};
-    float qDes[3]={0};
-    float sin_mid_q[3] = {0.0, 1.2, -2.0};
-    float Kp[3] = {0};  
-    float Kd[3] = {0};
+    // float qInit[3]={0};
+    float qInit[12]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+    float qDes[12]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+    // float q_target[12] = {0.0, 1.2, -2.0, 0.0, 1.2, -2.0, 0.0, 1.2, -2.0, 0.0, 1.2, -2.0};
+    float q_target[12] = {0.015, 0.75, -1.45, 0.015, 0.75, -1.45, 0.015, 0.75, -1.45, -0.015, 0.75, -1.45};
+    // TODO: There's a disimliraity in the convention of the URDF VS the real robot; look at the signs...
+    // float Kp[12] = {5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0};
+    // float Kd[12] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+    double Kp = 30.0;
+    double Kd = 2.0;
     double time_consume = 0;
     int rate_count = 0;
     int sin_count = 0;
@@ -47,9 +52,10 @@ public:
     // float dt = 0.01;     // amarco
 
     // amarco: data to write:
-    std::array< std::array<std::array<float, 6000>, 13> , 5 > data_fields;
+    std::array< std::array<std::array<float, 6000>, 13> , 9 > data_fields;
     std::array<std::string, 13> data_joint_names = {"time_stamp","FR_0","FR_1","FR_2","FL_0","FL_1","FL_2","RR_0","RR_1","RR_2","RL_0","RL_1","RL_2"};
-    std::array<std::string, 5> name_data_fields = {"q_des","q_curr","dq_curr","u_des","u_est"};
+    std::array<std::string, 9> name_data_fields = {"q_des","q_curr","dq_curr","u_des","u_est","ddq_curr","q_raw_curr","dq_raw_curr","ddq_raw_curr"};
+
     // data_q_des: Desired position for all the joints, [1000,12]
     // data_q_curr: Actual position for all the joints, [1000,12]
     // data_dq_curr: Actual velocity for all the joints, [1000,12]
@@ -61,8 +67,10 @@ public:
 
     int ind_data = 0;
 
-    int Nsteps_go_home = 1000;
-    int Nstart_motion_after = Nsteps_go_home + 500;
+    
+    int Nsteps_read_initial_pos = 1000;
+    int Nduration_go_home = 3000;
+    int Nsteps_go_home = Nsteps_read_initial_pos + Nduration_go_home;
 
 
     // template<std::size_t SIZE>
@@ -195,134 +203,58 @@ void Custom::RobotControl()
     // printf("%d  %f\n", motiontime, state.motorState[FR_2].q);
     // printf("%d  %f\n", motiontime, state.imu.quaternion[2]);
 
+    if(motiontime == 1)
+        time_start = std::chrono::high_resolution_clock::now();
+
+    // Read initial position:
+    if( motiontime >= 0 && motiontime < Nsteps_read_initial_pos){
+        for(int ii=0; ii < 12; ii++){
+            qInit[ii] = state.motorState[ii].q;
+        }
+
+        for(int ii=0; ii < 12; ii++){
+            cmd.motorCmd[ii].q = 0.0;
+            cmd.motorCmd[ii].dq = 0;
+            cmd.motorCmd[ii].Kp = 0.0; // Set to zero, otherwise it will try to go to the desired position, which is zero, i.e., cmd.motorCmd[ii].q = 0.0;
+            cmd.motorCmd[ii].Kd = 0.0; // Set to zero, otherwise it will try to go to the desired position, which is zero, i.e., cmd.motorCmd[ii].q = 0.0;
+            cmd.motorCmd[ii].tau = 0.0f;
+        }
+
+    }
+
+    if( motiontime == Nsteps_read_initial_pos){
+
+        for(int ii=0; ii < 12; ii++){
+            std::cout << "qInit[" << ii << "] = " << qInit[ii] << "\n";
+        }
+
+    }
+
+    // Go home:
+    if( motiontime >= Nsteps_read_initial_pos && motiontime < Nsteps_go_home){
+        rate_count++;
+        double rate = (double)rate_count/(double)Nduration_go_home;
+        
+        for(int ii=0; ii < 12; ii++){
+            qDes[ii] = jointLinearInterpolation(qInit[ii], q_target[ii], rate);
+        }
+
+        for(int ii=0; ii < 12; ii++){
+            cmd.motorCmd[ii].q = qDes[ii];
+            cmd.motorCmd[ii].dq = 0;
+            cmd.motorCmd[ii].Kp = Kp;
+            cmd.motorCmd[ii].Kd = Kd;
+            cmd.motorCmd[ii].tau = 0.0f;
+        }
+
+
+    }
+
     // gravity compensation
     cmd.motorCmd[FR_0].tau = -0.65f;
     cmd.motorCmd[FL_0].tau = +0.65f;
     cmd.motorCmd[RR_0].tau = -0.65f;
     cmd.motorCmd[RL_0].tau = +0.65f;
-
-    double sign_right_side = 1.0;
-    if(motiontime == 1)
-        time_start = std::chrono::high_resolution_clock::now();
-
-    // if( motiontime >= 100){
-    if( motiontime >= 0){
-        // std::cout << "here [custom] 1: " << "\n";
-        // first, get record initial position
-        // if( motiontime >= 100 && motiontime < 500){
-        if( motiontime >= 0 && motiontime < 10){
-            qInit[0] = state.motorState[FR_0].q;
-            qInit[1] = state.motorState[FR_1].q;
-            qInit[2] = state.motorState[FR_2].q;
-
-            // std::cout << "here [custom] 2: " << "\n";
-        }
-        // second, move to the origin point of a sine movement with Kp Kd
-        // if( motiontime >= 500 && motiontime < 1500){
-        if( motiontime >= 10 && motiontime < Nsteps_go_home){
-            rate_count++;
-            double rate = rate_count/200.0;                       // needs count to 200
-            Kp[0] = 5.0; Kp[1] = 5.0; Kp[2] = 5.0; 
-            Kd[0] = 1.0; Kd[1] = 1.0; Kd[2] = 1.0;
-            
-            qDes[0] = jointLinearInterpolation(qInit[0], sin_mid_q[0], rate);
-            qDes[1] = jointLinearInterpolation(qInit[1], sin_mid_q[1], rate);
-            qDes[2] = jointLinearInterpolation(qInit[2], sin_mid_q[2], rate);
-
-            // std::cout << "here [custom] 3: " << "\n";
-        }
-        double sin_joint0, sin_joint1, sin_joint2;
-        // last, do sine wave
-        if( motiontime >= Nstart_motion_after){
-            sin_count++;
-            sin_joint0 = 0.3 * sin(1.8*M_PI*sin_count/1000.0);
-            sin_joint1 = 0.4 * sin(1.8*M_PI*sin_count/1000.0);
-            sin_joint2 = 0.6 * sin(1.8*M_PI*sin_count/1000.0);
-            qDes[0] = sin_mid_q[0] + sin_joint0;
-            qDes[1] = sin_mid_q[1] + sin_joint1;
-            qDes[2] = sin_mid_q[2] + sin_joint2;
-            // qDes[2] = sin_mid_q[2];
-
-            sign_right_side = -1.0;
-
-            // std::cout << "here [custom] 4: " << "\n";
-        }
-
-        cmd.motorCmd[FR_0].q = sign_right_side*qDes[0];
-        cmd.motorCmd[FR_0].dq = 0;
-        cmd.motorCmd[FR_0].Kp = Kp[0];
-        cmd.motorCmd[FR_0].Kd = Kd[0];
-        cmd.motorCmd[FR_0].tau = -0.65f;
-
-        cmd.motorCmd[FR_1].q = qDes[1];
-        cmd.motorCmd[FR_1].dq = 0;
-        cmd.motorCmd[FR_1].Kp = Kp[1];
-        cmd.motorCmd[FR_1].Kd = Kd[1];
-        cmd.motorCmd[FR_1].tau = 0.0f;
-
-        cmd.motorCmd[FR_2].q =  qDes[2];
-        cmd.motorCmd[FR_2].dq = 0;
-        cmd.motorCmd[FR_2].Kp = Kp[2];
-        cmd.motorCmd[FR_2].Kd = Kd[2];
-        cmd.motorCmd[FR_2].tau = 0.0f;
-
-        cmd.motorCmd[FL_0].q = qDes[0];
-        cmd.motorCmd[FL_0].dq = 0;
-        cmd.motorCmd[FL_0].Kp = Kp[0];
-        cmd.motorCmd[FL_0].Kd = Kd[0];
-        cmd.motorCmd[FL_0].tau = -0.65f;
-
-        cmd.motorCmd[FL_1].q = qDes[1];
-        cmd.motorCmd[FL_1].dq = 0;
-        cmd.motorCmd[FL_1].Kp = Kp[1];
-        cmd.motorCmd[FL_1].Kd = Kd[1];
-        cmd.motorCmd[FL_1].tau = 0.0f;
-
-        cmd.motorCmd[FL_2].q =  qDes[2];
-        cmd.motorCmd[FL_2].dq = 0;
-        cmd.motorCmd[FL_2].Kp = Kp[2];
-        cmd.motorCmd[FL_2].Kd = Kd[2];
-        cmd.motorCmd[FL_2].tau = 0.0f;
-
-        cmd.motorCmd[RR_0].q = sign_right_side*qDes[0];
-        cmd.motorCmd[RR_0].dq = 0;
-        cmd.motorCmd[RR_0].Kp = Kp[0];
-        cmd.motorCmd[RR_0].Kd = Kd[0];
-        cmd.motorCmd[RR_0].tau = -0.65f;
-
-        cmd.motorCmd[RR_1].q = qDes[1];
-        cmd.motorCmd[RR_1].dq = 0;
-        cmd.motorCmd[RR_1].Kp = Kp[1];
-        cmd.motorCmd[RR_1].Kd = Kd[1];
-        cmd.motorCmd[RR_1].tau = 0.0f;
-
-        cmd.motorCmd[RR_2].q =  qDes[2];
-        cmd.motorCmd[RR_2].dq = 0;
-        cmd.motorCmd[RR_2].Kp = Kp[2];
-        cmd.motorCmd[RR_2].Kd = Kd[2];
-        cmd.motorCmd[RR_2].tau = 0.0f;
-
-        cmd.motorCmd[RL_0].q = qDes[0];
-        cmd.motorCmd[RL_0].dq = 0;
-        cmd.motorCmd[RL_0].Kp = Kp[0];
-        cmd.motorCmd[RL_0].Kd = Kd[0];
-        cmd.motorCmd[RL_0].tau = -0.65f;
-
-        cmd.motorCmd[RL_1].q = qDes[1];
-        cmd.motorCmd[RL_1].dq = 0;
-        cmd.motorCmd[RL_1].Kp = Kp[1];
-        cmd.motorCmd[RL_1].Kd = Kd[1];
-        cmd.motorCmd[RL_1].tau = 0.0f;
-
-        cmd.motorCmd[RL_2].q =  qDes[2];
-        cmd.motorCmd[RL_2].dq = 0;
-        cmd.motorCmd[RL_2].Kp = Kp[2];
-        cmd.motorCmd[RL_2].Kd = Kd[2];
-        cmd.motorCmd[RL_2].tau = 0.0f;
-
-
-
-    }
 
     if(motiontime > 10){
         safe.PositionLimit(cmd);
@@ -338,21 +270,29 @@ void Custom::RobotControl()
 
 
     // std::cout << "After sending...\n";
-    // std::cout << "cmd.motorCmd[FR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
-    // std::cout << "cmd.motorCmd[FR_0].dq: " << cmd.motorCmd[FR_0].dq << "\n";
-    // std::cout << "cmd.motorCmd[FR_0].Kp: " << cmd.motorCmd[FR_0].Kp << "\n";
-    // std::cout << "cmd.motorCmd[FR_0].Kd: " << cmd.motorCmd[FR_0].Kd << "\n";
-    // std::cout << "cmd.motorCmd[FR_0].tau: " << cmd.motorCmd[FR_0].tau << "\n";
-    // std::cout << "cmd.motorCmd[FR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
-    // std::cout << "cmd.motorCmd[FR_1].dq: " << cmd.motorCmd[FR_1].dq << "\n";
-    // std::cout << "cmd.motorCmd[FR_1].Kp: " << cmd.motorCmd[FR_1].Kp << "\n";
-    // std::cout << "cmd.motorCmd[FR_1].Kd: " << cmd.motorCmd[FR_1].Kd << "\n";
-    // std::cout << "cmd.motorCmd[FR_1].tau: " << cmd.motorCmd[FR_1].tau << "\n";
-    // std::cout << "cmd.motorCmd[FR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
-    // std::cout << "cmd.motorCmd[FR_2].dq: " << cmd.motorCmd[FR_2].dq << "\n";
-    // std::cout << "cmd.motorCmd[FR_2].Kp: " << cmd.motorCmd[FR_2].Kp << "\n";
-    // std::cout << "cmd.motorCmd[FR_2].Kd: " << cmd.motorCmd[FR_2].Kd << "\n";
-    // std::cout << "cmd.motorCmd[FR_2].tau: " << cmd.motorCmd[FR_2].tau << "\n";
+    // std::cout << "cmd.motorCmd[RR_0].q: " << cmd.motorCmd[FR_0].q << "\n";
+    // std::cout << "cmd.motorCmd[RR_0].dq: " << cmd.motorCmd[FR_0].dq << "\n";
+    // std::cout << "cmd.motorCmd[RR_0].Kp: " << cmd.motorCmd[FR_0].Kp << "\n";
+    // std::cout << "cmd.motorCmd[RR_0].Kd: " << cmd.motorCmd[FR_0].Kd << "\n";
+    // std::cout << "cmd.motorCmd[RR_0].tau: " << cmd.motorCmd[FR_0].tau << "\n";
+    // std::cout << "cmd.motorCmd[RR_1].q: " << cmd.motorCmd[FR_1].q << "\n";
+    // std::cout << "cmd.motorCmd[RR_1].dq: " << cmd.motorCmd[FR_1].dq << "\n";
+    // std::cout << "cmd.motorCmd[RR_1].Kp: " << cmd.motorCmd[FR_1].Kp << "\n";
+    // std::cout << "cmd.motorCmd[RR_1].Kd: " << cmd.motorCmd[FR_1].Kd << "\n";
+    // std::cout << "cmd.motorCmd[RR_1].tau: " << cmd.motorCmd[FR_1].tau << "\n";
+    // std::cout << "cmd.motorCmd[RR_2].q: " << cmd.motorCmd[FR_2].q << "\n";
+    // std::cout << "cmd.motorCmd[RR_2].dq: " << cmd.motorCmd[FR_2].dq << "\n";
+    // std::cout << "cmd.motorCmd[RR_2].Kp: " << cmd.motorCmd[FR_2].Kp << "\n";
+    // std::cout << "cmd.motorCmd[RR_2].Kd: " << cmd.motorCmd[FR_2].Kd << "\n";
+    // std::cout << "cmd.motorCmd[RR_2].tau: " << cmd.motorCmd[FR_2].tau << "\n";
+    // std::cout << "Kp[RR_0]: " << Kp[RR_0] << "\n";
+    // std::cout << "Kp[RR_1]: " << Kp[RR_1] << "\n";
+    // std::cout << "Kp[RR_2]: " << Kp[RR_2] << "\n";
+    // std::cout << "RR_0: " << RR_0 << "\n";
+    // std::cout << "RR_1: " << RR_1 << "\n";
+    // std::cout << "RR_2: " << RR_2 << "\n";
+
+
 
     if(ind_data < data_fields[0][0].size()){
 
@@ -372,6 +312,11 @@ void Custom::RobotControl()
                 data_fields[2][jj][ind_data] = time_elapsed;
                 data_fields[3][jj][ind_data] = time_elapsed;
                 data_fields[4][jj][ind_data] = time_elapsed;
+                data_fields[5][jj][ind_data] = time_elapsed;
+                data_fields[6][jj][ind_data] = time_elapsed;
+                data_fields[7][jj][ind_data] = time_elapsed;
+                data_fields[8][jj][ind_data] = time_elapsed;
+
             }
             else{
                 data_fields[0][jj][ind_data] = cmd.motorCmd[jj-1].q;
@@ -379,6 +324,11 @@ void Custom::RobotControl()
                 data_fields[2][jj][ind_data] = state.motorState[jj-1].dq;
                 data_fields[3][jj][ind_data] = cmd.motorCmd[jj-1].tau;
                 data_fields[4][jj][ind_data] = state.motorState[jj-1].tauEst;
+
+                data_fields[5][jj][ind_data] = state.motorState[jj-1].ddq;
+                data_fields[6][jj][ind_data] = state.motorState[jj-1].q_raw;
+                data_fields[7][jj][ind_data] = state.motorState[jj-1].dq_raw;
+                data_fields[8][jj][ind_data] = state.motorState[jj-1].ddq_raw;
 
             }
             // data_q_des[ind_data][jj] = cmd.motorCmd[jj].q;
@@ -477,10 +427,10 @@ int main(void)
     // };
 
 
-    float time_sleep = 14.0;
+    float time_sleep = 13.0;
     std::cout << "Sleeping for " << std::to_string(int(time_sleep)) << " seconds ...\n";
     sleep(time_sleep);
-    // std::cout << "Here finally!!! " <<  "!!!\n";
+    std::cout << "Here finally!!! " <<  "!!!\n";
 
     // write2file.dump(custom);
 

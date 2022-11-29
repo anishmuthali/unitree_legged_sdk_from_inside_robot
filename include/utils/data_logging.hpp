@@ -32,8 +32,8 @@ public:
     std::string rootpath_;
     std::string filename_base_;
     std::string path2folder_;
-    std::array<std::string, 5> file_path_named;
-    std::array<std::ofstream, 5> files_vec;
+    std::array<std::string, 9> file_path_named;
+    std::array<std::ofstream, 9> files_vec;
 
 };
 

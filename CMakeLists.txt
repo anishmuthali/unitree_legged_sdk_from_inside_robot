@@ -40,6 +40,9 @@ set(CMAKE_CXX_FLAGS "-O3")
 add_executable(example_position examples/example_position.cpp)
 target_link_libraries(example_position ${EXTRA_LIBS})
 
+add_executable(stand_up examples/stand_up.cpp)
+target_link_libraries(stand_up ${EXTRA_LIBS})
+
 # add_executable(example_velocity examples/example_velocity.cpp)
 # target_link_libraries(example_velocity ${EXTRA_LIBS})
 

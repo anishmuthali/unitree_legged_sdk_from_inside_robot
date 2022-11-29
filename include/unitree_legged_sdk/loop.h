@@ -28,7 +28,6 @@ public:
   void start();
   void shutdown();
   virtual void functionCB() = 0;
-  std::thread _thread; // amarco: made this public, it was private (see below)
 
 private:
   void entryFunc();
@@ -38,7 +37,7 @@ private:
   int _bindCPU;
   bool _bind_cpu_flag = false;
   bool _isrunning = false;
-  // std::thread _thread; // amarco: made this public
+  std::thread _thread; // amarco: DO NOT make this public; the loop initialization will fail with error: "[Error] Loop (null) is already running."
 };
 
 /*
