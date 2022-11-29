@@ -25,10 +25,15 @@ public:
         udp.InitCmdData(cmd);
         // Initialize();
     }
+    // Custom(): udp(8117, "192.168.12.1", 8118, sizeof(LowCmd), sizeof(LowState)), safe(LeggedType::Go1){
+    //     udp.InitCmdData(cmd);
+    // } // ubuntu laptop -> robot
+
     void UDPRecv();
     void UDPSend();
     void RobotControl();
     // void Initialize();
+
 
     Safety safe;
     UDP udp;
@@ -321,6 +326,7 @@ int main(void)
 
 
     Custom custom(LOWLEVEL);
+    // Custom custom;
     
     // InitEnvironment();
     LoopFunc loop_control("control_loop", custom.dt,    boost::bind(&Custom::RobotControl, &custom));
