@@ -91,7 +91,7 @@ void Write2File::dump(	std::array< std::array<std::array<float, SIZE_TIME>, SIZE
             else
                 files_vec[ff] << data_joint_names[jj];
         }
-        // files_vec[ff] << ";" << "\n";
+        files_vec[ff] << "\n";
 
         // std::cout << "here2.1\n";
 

@@ -10,12 +10,17 @@ from unitree_legged_sdk_python_tools.utils.data_parsing import read_cvs_file
 
 def main():
 
-	folder_name = "2022_11_22_16_43_76"; # from laptop
+	# folder_name = "2022_11_22_16_43_76"; # from laptop
 	# folder_name = "2022_11_22_16_46_34"; # inside the robot
+
+
+	folder_name = "2022_01_13_18_30_55"
 
 	path2data = "./"
 
 	data, file_names, joints_names = read_cvs_file(path2data,folder_name)
+
+	# pdb.set_trace()
 
 	data = data[:,10::,:]
 
