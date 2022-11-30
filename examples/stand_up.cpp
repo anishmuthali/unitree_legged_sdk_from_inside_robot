@@ -21,16 +21,13 @@ using namespace UNITREE_LEGGED_SDK;
 class Custom
 {
 public:
-    // Custom(uint8_t level): safe(LeggedType::Go1), udp(level) {
+    Custom(uint8_t level): safe(LeggedType::Go1), udp(level) {
+        udp.InitCmdData(cmd);
+        // Initialize();
+    }
+    // Custom(): udp(8117, "192.168.12.1", 8118, sizeof(LowCmd), sizeof(LowState)), safe(LeggedType::Go1){
     //     udp.InitCmdData(cmd);
-    //     // Initialize();
-    // }
-    Custom(): udp(8117, "192.168.12.1", 8118, sizeof(LowCmd), sizeof(LowState)), safe(LeggedType::Go1){
-        udp.InitCmdData(cmd);
-    } // ubuntu laptop -> robot computer
-    Custom(): udp(8117, "192.168.12.1", 8118, sizeof(LowCmd), sizeof(LowState)), safe(LeggedType::Go1){
-        udp.InitCmdData(cmd);
-    } // ubuntu laptop -> robot
+    // } // ubuntu laptop -> robot computer
 
     void UDPRecv();
     void UDPSend();
@@ -118,8 +115,8 @@ double jointLinearInterpolation(double initPos, double targetPos, double rate)
 void Custom::RobotControl() 
 {
     motiontime++;
-    // udp.GetRecv(state);
-    udp.GetRecv((char*)&state);
+    udp.GetRecv(state);
+    // udp.GetRecv((char*)&state);
     // printf("%d  %f\n", motiontime, state.motorState[FR_2].q);
     // printf("%d  %f\n", motiontime, state.imu.quaternion[2]);
 
@@ -258,7 +255,7 @@ void Custom::RobotControl()
     int res1 = safe.PowerProtect(cmd, state, 1);
     if(res1 < 0) exit(-1);
 
-    // udp.SetSend(cmd);
+    udp.SetSend(cmd);
     // udp.SetSend((char*)&cmd);
 
 
