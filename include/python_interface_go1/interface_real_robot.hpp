@@ -6,26 +6,42 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <array>
 #include <math.h>
-// #include <pybind11/operators.h>
-
-// #include <Eigen/Core>
+#include <Eigen/Core>
 
 
-#include <pybind11/pybind11.h>
-#include <pybind11/eigen.h>
-// #include <pybind11/numpy.h>
-#include <pybind11/stl.h>
+// // #include <python_interface_go1/pybind11/operators.h>
+// // #include <python_interface_go1/pybind11/numpy.h>
+// #include <python_interface_go1/pybind11/include/pybind11/pybind11.h>
+// #include <python_interface_go1/pybind11/include/pybind11/eigen.h>
+// #include <python_interface_go1/pybind11/include/pybind11/stl.h>
+
+
 #include <iostream>
 
 using namespace UNITREE_LEGGED_SDK;
+
+typedef Eigen::Matrix<double, 12, 1> Vector12d; // Column vector by default
 
 class RobotInterfaceGo1
 {
 public:
     RobotInterfaceGo1() : safe(LeggedType::Go1), udp(LOWLEVEL){
+        
         // InitEnvironment();
+        // InitializeAllFieldsToZero(); // amarco
 
-        InitializeAllFieldsToZero(); // amarco
+        // amarco: TODO: double check that this is ok
+        udp.InitCmdData(this->cmd);
+
+        this->cmd.levelFlag = LOWLEVEL;
+        for(int i = 0; i<this->Njoints; i++){
+            this->cmd.motorCmd[i].mode = 0x0A;   // motor switch to servo (PMSM) mode
+            this->cmd.motorCmd[i].q = PosStopF;        // 禁止位置环 (Prohibit position loop)
+            this->cmd.motorCmd[i].Kp = 0;
+            this->cmd.motorCmd[i].dq = VelStopF;        // 禁止速度环 (Prohibit speed loop)
+            this->cmd.motorCmd[i].Kd = 0;
+            this->cmd.motorCmd[i].tau = 0;
+        }
 
         // TODO: Maybe read this from a Yaml file here directly
         // But because this class will be always handled from Python, we can do the yaml reading on the python side, easier
@@ -46,7 +62,7 @@ public:
         this->body_linear_velocity.setZero();
         this->body_angular_velocity.setZero();
         this->body_orientation.setZero();
-        this->joint_pos_des_hold.setZero();
+        
 
         joint_pos_init_read.setZero();
         joint_pos_init_target.setZero();
@@ -70,7 +86,6 @@ public:
     }
 
     size_t Njoints = 12;
-    typedef Eigen::Matrix<double, 12, 1> Vector12d; // Column vector by default
 
     void CollectObservations();
     void update_all_observations();
@@ -93,15 +108,9 @@ public:
 
     void set_deltaT(double deltaT);
     double get_deltaT(void);
+    void print_joint_info(std::string name, const Eigen::Ref<Vector12d>& joint_vec);
 
-    void update_joint_pos_des_hold();
-
-    // void ControlLoop();
     // void main();
-    // void go2target_linear_interpolation( const Eigen::Ref<Vector12d>& joint_pos_init, 
-    //                                     const Eigen::Ref<Vector12d>& joint_pos_final,
-    //                                     Eigen::Ref<Vector12d> joint_pos_interp,
-    //                                     double rate);
     // void stand_up(int Nsteps);
 
 
@@ -124,26 +133,26 @@ public:
     Eigen::Vector3d body_orientation;
     double deltaT = 0.002;
 
-
-    // Desired position to hold:
-    Vector12d joint_pos_des_hold;
-
-
     Vector12d joint_pos_init_read;
     Vector12d joint_pos_init_target;
 
     // Flags:
     bool is_running_control_loop = false;
     bool use_position_protect = false;
-
-    
+    bool use_gravity_compensation = true;
 
 protected:
-    void InitializeAllFieldsToZero();
+    // void InitializeAllFieldsToZero();
     void ensure_safety();
     Eigen::IOFormat clean_format;
 
 };
+
+
+/* --------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------ Gym Environment ---------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------------------------- */
+
 
 
 class GymEnvironmentRealGo1 : public RobotInterfaceGo1 {

@@ -16,7 +16,7 @@ def main():
 
 	# folder_name = "2022_01_13_18_30_55"
 
-	folder_name = "2022_01_13_19_24_16"
+	folder_name = "2022_01_13_19_28_46"
 
 	path2data = "./"
 
@@ -24,9 +24,10 @@ def main():
 
 	# pdb.set_trace()
 
-	# data = data[:,0:5500,:] # 2022_01_13_19_24_16
+	ind_is_zero = data[0,:,0] == 0.0 # Check when the timestamp is zero and remove those values (the program finished before the data logging did...)
+	data = data[:,~ind_is_zero,:]
 
-	pdb.set_trace()
+	# data = data[:,0:5500,:] # 2022_01_13_19_24_16
 
 	Njoints = 3
 	k_cut = 0 # Cut the first time steps

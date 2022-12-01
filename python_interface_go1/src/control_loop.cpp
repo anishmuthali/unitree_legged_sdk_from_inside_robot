@@ -1,37 +1,6 @@
 
 
-void RobotInterfaceGo1::ControlLoop(){
-    /*
-    Hold the desired position, stored in joint_pos_des_hold
-    */
 
-    this->CollectObservations();
-
-    // Update relevant variables:
-    this->update_joint_pos_curr();
-    this->update_joint_vel_curr();
-    this->update_body_linear_velocity();
-    this->update_body_angular_velocity();
-    this->update_body_orientation();
-
-
-    // TODO: Fix this: differentiate the desired position to get the velocity?
-    Vector12d joint_vel_des; // How do we get this? What do we set it to?
-    joint_vel_des.setZero(); // By setting to zero, we basically bypass the influence of the D gain
-    
-    // Gravity compensation (as in example_position.cpp):
-    Vector12d joint_torque_des; // How do we get this? What do we set it to?
-    joint_torque_des.setZero();
-    joint_torque_des[FR_0] = -0.65f;
-    joint_torque_des[FL_0] = +0.65f;
-    joint_torque_des[RR_0] = -0.65f;
-    joint_torque_des[RL_0] = +0.65f;
-
-
-    // Read whatever is in joint_pos_des_hold and send it:
-    this->SendCommand(joint_pos_des_hold,joint_vel_des,joint_torque_des);
-
-}
 
 void RobotInterfaceGo1::main(){
 
@@ -83,16 +52,7 @@ void RobotInterfaceGo1::main(){
     return;
 }
 
-void RobotInterfaceGo1::go2target_linear_interpolation( const Eigen::Ref<Vector12d>& joint_pos_init, 
-                                                    const Eigen::Ref<Vector12d>& joint_pos_final,
-                                                    Eigen::Ref<Vector12d> joint_pos_interp,
-                                                    double rate){
-    
-    // double rate = std::min(std::max(rate, 0.0), 1.0);
-    joint_pos_interp = joint_pos_init*(1.-rate) + joint_pos_final*rate;
 
-    return;
-}
 
 
 

@@ -5,76 +5,80 @@
  * We provide a set of functions to interface with the real robot using Python
 **********************************************************************************************/
 
-#include <interface_real_robot.hpp>
+#include <python_interface_go1/interface_real_robot.hpp>
 
-void RobotInterfaceGo1::InitializeAllFieldsToZero(){
+#include <pybind11/pybind11.h>
+#include <pybind11/eigen.h> // This header includes #include <Eigen/Core>
+#include <pybind11/stl.h>
 
-    // LowState:
-    state.levelFlag = 0;
-    state.commVersion = 0;
-    state.robotID = 0;
-    state.SN = 0; 
-    state.bandWidth = 0;
+// void RobotInterfaceGo1::InitializeAllFieldsToZero(){
 
-    state.imu.quaternion.fill(0.0);
-    state.imu.gyroscope.fill(0.0);
-    state.imu.accelerometer.fill(0.0);
-    state.imu.rpy.fill(0.0);
-    state.imu.temperature = 0;
+//     // LowState:
+//     state.levelFlag = 0;
+//     state.commVersion = 0;
+//     state.robotID = 0;
+//     state.SN = 0; 
+//     state.bandWidth = 0;
 
-    for (int ii = 0; ii < state.motorState.size(); ii++) {
+//     state.imu.quaternion.fill(0.0);
+//     state.imu.gyroscope.fill(0.0);
+//     state.imu.accelerometer.fill(0.0);
+//     state.imu.rpy.fill(0.0);
+//     state.imu.temperature = 0;
 
-        state.motorState[ii].mode = 0;
-        state.motorState[ii].q = 0.0;
-        state.motorState[ii].dq = 0.0;
-        state.motorState[ii].ddq = 0.0;
-        state.motorState[ii].tauEst = 0.0;
-        state.motorState[ii].q_raw = 0.0;
-        state.motorState[ii].dq_raw = 0.0;
-        state.motorState[ii].ddq_raw = 0.0;
-        state.motorState[ii].temperature = 0;
-        state.motorState[ii].reserve.fill(0);
-    }
+//     for (int ii = 0; ii < state.motorState.size(); ii++) {
 
-    state.footForce.fill(0);
-    state.footForceEst.fill(0);
+//         state.motorState[ii].mode = 0;
+//         state.motorState[ii].q = 0.0;
+//         state.motorState[ii].dq = 0.0;
+//         state.motorState[ii].ddq = 0.0;
+//         state.motorState[ii].tauEst = 0.0;
+//         state.motorState[ii].q_raw = 0.0;
+//         state.motorState[ii].dq_raw = 0.0;
+//         state.motorState[ii].ddq_raw = 0.0;
+//         state.motorState[ii].temperature = 0;
+//         state.motorState[ii].reserve.fill(0);
+//     }
 
-    state.bms.version_h = 0;
-    state.bms.version_l = 0;
-    state.bms.bms_status = 0;
-    state.bms.SOC = 0;
-    state.bms.current = 0;
-    state.bms.cycle = 0;
+//     state.footForce.fill(0);
+//     state.footForceEst.fill(0);
 
-    state.tick = 0;
+//     state.bms.version_h = 0;
+//     state.bms.version_l = 0;
+//     state.bms.bms_status = 0;
+//     state.bms.SOC = 0;
+//     state.bms.current = 0;
+//     state.bms.cycle = 0;
 
-    state.wirelessRemote.fill(0);        // wireless commands
-    state.reserve = 0;
-    state.crc = 0;
+//     state.tick = 0;
+
+//     state.wirelessRemote.fill(0);        // wireless commands
+//     state.reserve = 0;
+//     state.crc = 0;
 
 
-    // LowCmd
-    cmd.levelFlag = 0;
-    cmd.commVersion = 0;
-    cmd.robotID = 0;
-    cmd.SN = 0;
-    cmd.bandWidth = 0;
-    cmd.bms.off = 0;
-    // cmd.bms.reserve;
+//     // LowCmd
+//     cmd.levelFlag = 0;
+//     cmd.commVersion = 0;
+//     cmd.robotID = 0;
+//     cmd.SN = 0;
+//     cmd.bandWidth = 0;
+//     cmd.bms.off = 0;
+//     // cmd.bms.reserve;
 
-    // MotorCmd motorCmd[20];
-    for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
+//     // MotorCmd motorCmd[20];
+//     for (int ii = 0; ii < cmd.motorCmd.size(); ii++) {
 
-        cmd.motorCmd[ii].mode = 0;
-        cmd.motorCmd[ii].q = 0.0;
-        cmd.motorCmd[ii].dq = 0.0;
-        cmd.motorCmd[ii].tau = 0.0;
-        cmd.motorCmd[ii].Kp = 0.0;
-        cmd.motorCmd[ii].Kd = 0.0;
-        cmd.motorCmd[ii].reserve.fill(0);
-    }
+//         cmd.motorCmd[ii].mode = 0;
+//         cmd.motorCmd[ii].q = 0.0;
+//         cmd.motorCmd[ii].dq = 0.0;
+//         cmd.motorCmd[ii].tau = 0.0;
+//         cmd.motorCmd[ii].Kp = 0.0;
+//         cmd.motorCmd[ii].Kd = 0.0;
+//         cmd.motorCmd[ii].reserve.fill(0);
+//     }
 
-}
+// }
 
 void RobotInterfaceGo1::CollectObservations() {
     udp.Recv();
@@ -174,16 +178,16 @@ void RobotInterfaceGo1::SendCommand(const Eigen::Ref<Vector12d>& joint_pos_des,
                                     const Eigen::Ref<Vector12d>& joint_vel_des,
                                     const Eigen::Ref<Vector12d>& joint_torque_des){
 
-    cmd.levelFlag = 0xff; // amarco: What is this?
+    // cmd.levelFlag = 0xff; 
+    cmd.levelFlag = LOWLEVEL;
     for (int ii = 0; ii < this->Njoints; ii++) { // amarco: std::array<MotorCmd, 20> motorCmd; we only need the first 12 dimensions, corresponding to the joints
-        cmd.motorCmd[ii].mode = 0x0A; // amarco: What is this?
+        cmd.motorCmd[ii].mode = 0x0A; // motor switch to servo (PMSM) mode
         cmd.motorCmd[ii].q = joint_pos_des[ii];
         cmd.motorCmd[ii].dq = joint_vel_des[ii];
         cmd.motorCmd[ii].tau = joint_torque_des[ii];
         cmd.motorCmd[ii].Kp = P_gains_[ii];
         cmd.motorCmd[ii].Kd = D_gains_[ii];
     }
-
 
     this->ensure_safety(); // Will modify the contents of cmd to ensure that joint/torque limits are not exceeded
 
@@ -205,13 +209,16 @@ void RobotInterfaceGo1::send_desired_position(const Eigen::Ref<Vector12d>& joint
     Vector12d joint_vel_des; // How do we get this? What do we set it to?
     joint_vel_des.setZero(); // By setting to zero, we basically bypass the influence of the D gain
     
-    // Gravity compensation (as in example_position.cpp):
-    Vector12d joint_torque_des; // How do we get this? What do we set it to?
+    Vector12d joint_torque_des; // u_total = u_des + u_PID; in order to set u_PID=0, we need to set the PD gains to zero
     joint_torque_des.setZero();
-    joint_torque_des[FR_0] = -0.65f;
-    joint_torque_des[FL_0] = +0.65f;
-    joint_torque_des[RR_0] = -0.65f;
-    joint_torque_des[RL_0] = +0.65f;
+
+    // Gravity compensation (as in example_position.cpp):
+    if(this->use_gravity_compensation == true){
+        joint_torque_des[FR_0] = -0.65f;
+        joint_torque_des[FL_0] = +0.65f;
+        joint_torque_des[RR_0] = -0.65f;
+        joint_torque_des[RL_0] = +0.65f;
+    }
 
     this->SendCommand(joint_pos_des,joint_vel_des,joint_torque_des);
 
@@ -240,7 +247,7 @@ void RobotInterfaceGo1::set_PD_gains(const Eigen::Ref<Vector12d>& P_gains, const
 
 void RobotInterfaceGo1::set_deltaT(double deltaT){
     this->deltaT = deltaT;
-    std::cout << "Setting deltaT: " << deltaT << "\n";
+    std::cout << "Setting deltaT: " << deltaT << " seconds\n";
     std::cout << "deltaT will only we used for state estimation using IMUs\n";
     return;
 }
@@ -249,7 +256,13 @@ double RobotInterfaceGo1::get_deltaT(void){
     return this->deltaT;
 }
 
+void print_joint_info(std::string name, const Eigen::Ref<Vector12d>& joint_vec){
 
+    std::cout << name << ": " << joint_vec.transpose().format(this->clean_format) << "\n";
+
+    return;
+
+}
 
 
 /* --------------------------------------------------------------------------------------------------------------- */
