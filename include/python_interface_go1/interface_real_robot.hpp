@@ -89,6 +89,10 @@ public:
 
     }
 
+    ~RobotInterfaceGo1(){
+        std::cout << "Destroying RobotInterfaceGo1 class ...\n";
+    }
+
     size_t Njoints = 12;
 
     void CollectObservations();
@@ -173,6 +177,10 @@ public:
         // joint_pos_init_target << 0.0, -1.5245, 0.3435, 1.0, 0.0, 0.0, 1.0, 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
         // joint_pos_init_target << 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
 
+    }
+
+    ~GymEnvironmentRealGo1(){
+        std::cout << "Destroying GymEnvironmentRealGo1 class ...\n";
     }
 
     void init();
