@@ -34,17 +34,17 @@ set(EXTRA_LIBS -pthread libunitree_legged_sdk_${ARCH}.so lcm) # amarco edited
 
 set(CMAKE_CXX_FLAGS "-O3")
 
-# amarco
-add_subdirectory(python_interface_go1/pybind11)
-pybind11_add_module(robot_interface_go1 python_interface_go1/src/interface_real_robot.cpp)
-target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
+# # amarco
+# add_subdirectory(python_interface_go1/pybind11)
+# pybind11_add_module(robot_interface_go1 python_interface_go1/src/interface_real_robot.cpp)
+# target_link_libraries(robot_interface_go1 ${EXTRA_LIBS})
 
 # one pc one process
 add_executable(example_position examples/example_position.cpp)
 target_link_libraries(example_position ${EXTRA_LIBS})
 
-add_executable(stand_up examples/stand_up.cpp)
-target_link_libraries(stand_up ${EXTRA_LIBS})
+add_executable(stand_up_and_down examples/stand_up_and_down.cpp)
+target_link_libraries(stand_up_and_down ${EXTRA_LIBS})
 
 # add_executable(example_velocity examples/example_velocity.cpp)
 # target_link_libraries(example_velocity ${EXTRA_LIBS})

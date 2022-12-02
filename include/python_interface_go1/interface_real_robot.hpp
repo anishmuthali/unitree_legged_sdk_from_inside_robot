@@ -3,6 +3,10 @@ Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
 Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 ************************************************************************/
 
+#ifndef _INTERFACE_REAL_ROBOT_H_
+#define _INTERFACE_REAL_ROBOT_H_
+
+
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <array>
 #include <math.h>
@@ -198,3 +202,6 @@ private:
     // Vector12d joint_pos_init_target;
 
 };
+
+
+#endif  // _INTERFACE_REAL_ROBOT_H_

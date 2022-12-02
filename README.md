@@ -2,6 +2,12 @@
 The unitree_legged_sdk is mainly used for communication between PC and Controller board.
 It also can be used in other PCs with UDP.
 * amarco added: https://github.com/unitreerobotics/unitree_legged_sdk/tree/3.4.2
+* amarco: Checkout a specific tag as
+```bash
+git checkout -b <New Branch Name> <TAG Name>
+git checkout -b dev_amarco v3.4.2
+```
+
 
 ### Notice
 support robot: Go1
