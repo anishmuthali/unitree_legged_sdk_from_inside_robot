@@ -226,6 +226,31 @@ void RobotInterfaceGo1::send_desired_position(const Eigen::Ref<Vector12d>& joint
 }
 
 
+void RobotInterfaceGo1::send_mode_only(void){
+
+    /*
+    Inform the robot that we are going to control it using lowlevel mode
+    */
+
+    // cmd.levelFlag = 0xff; 
+    cmd.levelFlag = LOWLEVEL;
+    for (int ii = 0; ii < this->Njoints; ii++) { // amarco: std::array<MotorCmd, 20> motorCmd; we only need the first 12 dimensions, corresponding to the joints
+        cmd.motorCmd[ii].mode = 0x0A; // motor switch to servo (PMSM) mode
+        cmd.motorCmd[ii].q = 0.0;
+        cmd.motorCmd[ii].dq = 0.0;
+        cmd.motorCmd[ii].tau = 0.0;
+        cmd.motorCmd[ii].Kp = 0.0;
+        cmd.motorCmd[ii].Kd = 0.0;
+    }
+
+    this->ensure_safety(); // Will modify the contents of cmd to ensure that joint/torque limits are not exceeded
+
+    udp.SetSend(cmd);
+    udp.Send();
+
+    return;
+
+}
 
 // void RobotInterfaceGo1::set_PD_gains(const std::array<float, 12> & P_gains, const std::array<float, 12> & D_gains){
 void RobotInterfaceGo1::set_PD_gains(const Eigen::Ref<Vector12d>& P_gains, const Eigen::Ref<Vector12d>& D_gains){

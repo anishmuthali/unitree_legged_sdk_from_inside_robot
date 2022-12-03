@@ -37,15 +37,32 @@ public:
         // amarco: TODO: double check that this is ok
         udp.InitCmdData(this->cmd);
 
-        this->cmd.levelFlag = LOWLEVEL;
-        for(int i = 0; i<this->Njoints; i++){
-            this->cmd.motorCmd[i].mode = 0x0A;   // motor switch to servo (PMSM) mode
-            this->cmd.motorCmd[i].q = PosStopF;        // 禁止位置环 (Prohibit position loop)
-            this->cmd.motorCmd[i].Kp = 0;
-            this->cmd.motorCmd[i].dq = VelStopF;        // 禁止速度环 (Prohibit speed loop)
-            this->cmd.motorCmd[i].Kd = 0;
-            this->cmd.motorCmd[i].tau = 0;
-        }
+
+
+        // // [DBG]: Print field before editing:
+        // std::cout << "cmd.levelFlag: " << std::hex << int(cmd.levelFlag) << "\n";
+        // this->cmd.levelFlag = LOWLEVEL;
+        // std::cout << "cmd.levelFlag: " << std::hex << int(cmd.levelFlag) << "\n";
+        // for(int i = 0; i<this->Njoints; i++){
+
+        //     // [DBG]: Print field before editing:
+        //     std::cout << "cmd.motorCmd[i" << i << "].mode = " << std::hex << int(this->cmd.motorCmd[i].mode) << "\n";
+        //     std::cout << "cmd.motorCmd[i" << i << "].q = " << this->cmd.motorCmd[i].q << "\n";
+        //     std::cout << "cmd.motorCmd[i" << i << "].dq = " << this->cmd.motorCmd[i].dq << "\n";
+
+
+        //     this->cmd.motorCmd[i].mode = 0x0A;   // motor switch to servo (PMSM) mode
+        //     this->cmd.motorCmd[i].q = PosStopF;        // 禁止位置环 (Prohibit position loop)
+        //     this->cmd.motorCmd[i].Kp = 0;
+        //     this->cmd.motorCmd[i].dq = VelStopF;        // 禁止速度环 (Prohibit speed loop)
+        //     this->cmd.motorCmd[i].Kd = 0;
+        //     this->cmd.motorCmd[i].tau = 0;
+
+        //     std::cout << "cmd.motorCmd[i" << i << "].mode = " << std::hex << int(this->cmd.motorCmd[i].mode) << "\n";
+        // }
+        // The cmd.levelFlag is set to 0xff and cmd.motorCmd[i].mode to 0x0A
+
+
 
         // TODO: Maybe read this from a Yaml file here directly
         // But because this class will be always handled from Python, we can do the yaml reading on the python side, easier
@@ -102,6 +119,7 @@ public:
                         const Eigen::Ref<Vector12d>& joint_torque_des);
 
     void send_desired_position(const Eigen::Ref<Vector12d>& joint_pos_des);
+    void send_mode_only(void);
     
     // void set_PD_gains(const std::array<float, 12> & P_gains, const std::array<float, 12> & D_gains);
     void set_PD_gains(const Eigen::Ref<Vector12d> & P_gains, const Eigen::Ref<Vector12d> & D_gains);
