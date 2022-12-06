@@ -22,6 +22,8 @@ def main():
 
 	data, file_names, joints_names = read_cvs_file(path2data,folder_name)
 
+	print(file_names)
+
 	# pdb.set_trace()
 
 	ind_is_zero = data[0,:,0] == 0.0 # Check when the timestamp is zero and remove those values (the program finished before the data logging did...)
@@ -52,13 +54,14 @@ def main():
 	k_cut = 10
 	for jj in range(Njoints):
 		time_stamp = data[0,k_cut::,0] # It's the same for all, q_des, q_curr, etc.
+		# time_stamp_time_step = np.diff(time_stamp,prepend=0.0)
 
-		joint_vel_vec = data[2,:,jj+1]
+		joint_vel_vec = data[1,:,jj+1]
 
 		joint_pos_vec = data[0,:,jj+1]
 		joint_vel_vec_num_diff = np.diff(joint_pos_vec,prepend=0.0) / 0.002
 
-		hdl_splots[jj].plot(time_stamp,joint_vel_vec[k_cut::],label=file_names[2])
+		hdl_splots[jj].plot(time_stamp,joint_vel_vec[k_cut::],label=file_names[1])
 		hdl_splots[jj].plot(time_stamp,joint_vel_vec_num_diff[k_cut::],label="dq_curr (num diff)")
 		hdl_splots[jj].set_title(joints_names[jj])
 		hdl_splots[jj].set_ylabel("angular velocity [rad/s]")
@@ -70,8 +73,8 @@ def main():
 	hdl_fig.suptitle("Torque - Right Leg")
 	for jj in range(Njoints):
 		time_stamp = data[0,k_cut::,0] # It's the same for all, q_des, q_curr, etc.
-		hdl_splots[jj].plot(time_stamp,data[3,k_cut::,jj+1],label=file_names[3]) # u des
-		hdl_splots[jj].plot(time_stamp,data[4,k_cut::,jj+1],label=file_names[4]) # u est
+		hdl_splots[jj].plot(time_stamp,data[6,k_cut::,jj+1],label=file_names[6]) # u des
+		hdl_splots[jj].plot(time_stamp,data[9,k_cut::,jj+1],label=file_names[9]) # u est
 		hdl_splots[jj].set_title(joints_names[jj])
 		hdl_splots[jj].set_ylabel("torque [Nm]")
 		hdl_splots[jj].legend()
