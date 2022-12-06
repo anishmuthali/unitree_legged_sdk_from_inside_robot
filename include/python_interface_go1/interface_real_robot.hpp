@@ -37,8 +37,6 @@ public:
         // amarco: TODO: double check that this is ok
         udp.InitCmdData(this->cmd);
 
-
-
         // // [DBG]: Print field before editing:
         // std::cout << "cmd.levelFlag: " << std::hex << int(cmd.levelFlag) << "\n";
         // this->cmd.levelFlag = LOWLEVEL;
@@ -85,22 +83,23 @@ public:
         this->body_orientation.setZero();
         
 
-        joint_pos_init_read.setZero();
-        joint_pos_init_target.setZero();
+        // joint_pos_init_read.setZero();
+        // joint_pos_init_target.setZero();
 
 
-        joint_pos_init_target << 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
+        // joint_pos_init_target << 0.0136, 0.7304, -1.4505, -0.0118, 0.7317, -1.4437, 0.0105, 0.6590, -1.3903, -0.0102, 0.6563, -1.3944;
 
-        std::cout << "Safety stuff\n";
-        std::cout << "safe.WattLimit: " << safe.WattLimit << "\n";
-        std::cout << "safe.Wcount: " << safe.Wcount << "\n";
-        std::cout << "safe.Hip_max: " << safe.Hip_max << "\n";
-        std::cout << "safe.Hip_min: " << safe.Hip_min << "\n";
-        std::cout << "safe.Thigh_max: " << safe.Thigh_max << "\n";
-        std::cout << "safe.Thigh_min: " << safe.Thigh_min << "\n";
-        std::cout << "safe.Calf_max: " << safe.Calf_max << "\n";
-        std::cout << "safe.Calf_min;: " << safe.Calf_min << "\n";
+        std::cout << "Print relevant safety parameters:\n";
+        std::cout << " * safe.WattLimit: " << safe.WattLimit << "\n";
+        std::cout << " * safe.Wcount: " << safe.Wcount << "\n";
+        std::cout << " * safe.Hip_max: " << safe.Hip_max << "\n";
+        std::cout << " * safe.Hip_min: " << safe.Hip_min << "\n";
+        std::cout << " * safe.Thigh_max: " << safe.Thigh_max << "\n";
+        std::cout << " * safe.Thigh_min: " << safe.Thigh_min << "\n";
+        std::cout << " * safe.Calf_max: " << safe.Calf_max << "\n";
+        std::cout << " * safe.Calf_min;: " << safe.Calf_min << "\n";
 
+        std::cout << "Other parameters:\n";
         std::cout << "deltaT: " << deltaT << "\n";
         std::cout << "Njoints: " << Njoints << "\n";
 
@@ -119,7 +118,7 @@ public:
                         const Eigen::Ref<Vector12d>& joint_torque_des);
 
     void send_desired_position(const Eigen::Ref<Vector12d>& joint_pos_des);
-    void send_mode_only(void);
+    void change_operation_mode_inside_robot(void);
     
     // void set_PD_gains(const std::array<float, 12> & P_gains, const std::array<float, 12> & D_gains);
     void set_PD_gains(const Eigen::Ref<Vector12d> & P_gains, const Eigen::Ref<Vector12d> & D_gains);
@@ -159,8 +158,8 @@ public:
     Eigen::Vector3d body_orientation;
     double deltaT = 0.002;
 
-    Vector12d joint_pos_init_read;
-    Vector12d joint_pos_init_target;
+    // Vector12d joint_pos_init_read;
+    // Vector12d joint_pos_init_target;
 
     // Flags:
     bool is_running_control_loop = false;

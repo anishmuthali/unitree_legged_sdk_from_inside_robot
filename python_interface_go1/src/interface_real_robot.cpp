@@ -226,7 +226,7 @@ void RobotInterfaceGo1::send_desired_position(const Eigen::Ref<Vector12d>& joint
 }
 
 
-void RobotInterfaceGo1::send_mode_only(void){
+void RobotInterfaceGo1::change_operation_mode_inside_robot(void){
 
     /*
     Inform the robot that we are going to control it using lowlevel mode
@@ -252,7 +252,6 @@ void RobotInterfaceGo1::send_mode_only(void){
 
 }
 
-// void RobotInterfaceGo1::set_PD_gains(const std::array<float, 12> & P_gains, const std::array<float, 12> & D_gains){
 void RobotInterfaceGo1::set_PD_gains(const Eigen::Ref<Vector12d>& P_gains, const Eigen::Ref<Vector12d>& D_gains){
 
     // std::copy(std::begin(P_gains), std::end(P_gains), std::begin(this->P_gains_));
