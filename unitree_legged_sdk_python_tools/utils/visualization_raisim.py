@@ -11,12 +11,14 @@ class VisualizeRaisim():
         # https://raisim.com/sections/HeightMap_example_png.html
 
         # raisim.World.setLicenseFile(os.path.dirname(os.path.abspath(__file__)) + "/../../rsc/activation.raisim")
-        raisim.World.setLicenseFile("/home/ubuntu/.raisim/activation.raisim")
+        # raisim.World.setLicenseFile("/home/ubuntu/.raisim/activation.raisim") # Not sure this actually works...
         # pdb.set_trace()
 
         # go1_urdf_file = "/Users/alonrot/work/code_projects_WIP/unitree_pybullet_modif/data/go1_description/urdf/go1.urdf"
         # go1_urdf_file = "/Users/alonrot/work/code_projects_WIP/unitree_pybullet_modif/data/go1_description/urdf/go1_no_gazebo.urdf"
-        self.go1_urdf_file = "/home/ubuntu/mounted_home/work/code_projects_WIP/unitree_mujoco/data/go1/urdf/go1.urdf"
+
+        # self.go1_urdf_file = "/home/ubuntu/mounted_home/work/code_projects_WIP/unitree_mujoco/data/go1/urdf/go1.urdf" # amarco laptop, ubuntu VM machine
+        self.go1_urdf_file = "/home/amarco/catkin_real_robot_ws/src/unitree_legged_sdk_from_inside_robot/assets/go1/urdf/go1.urdf" # laptop robot lab
         """
         NOTE: When running on a virtual machine, self.go1_urdf_file needs to point to the mounted volume (i.e., /home/ubuntu/mounted_home ...)
         However, when running the RaiSimUnity from macOS, the meshes won't be found because they are defined inside the URDF as a relative import and such path

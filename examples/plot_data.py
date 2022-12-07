@@ -10,21 +10,29 @@ from unitree_legged_sdk_python_tools.utils.data_parsing import read_cvs_file
 
 def main():
 
+	# path2data = "./"
 	# folder_name = "2022_11_22_16_43_76"; # from laptop
 	# folder_name = "2022_11_22_16_46_34"; # inside the robot
 
 
 	# folder_name = "2022_01_13_18_30_55"
 
-	folder_name = "2022_01_13_19_28_46"
+	# folder_name = "2022_01_13_19_28_46"
 
-	path2data = "./"
 
-	data, file_names, joints_names = read_cvs_file(path2data,folder_name)
+	# data, file_names, joints_names = read_cvs_file(path2data,folder_name)
+	
+	# print(file_names)
 
-	print(file_names)
+	path2data = "/home/amarco/catkin_real_robot_ws/src/unitree_ros_to_real/unitree_legged_real/nodes/python/"
 
-	# pdb.set_trace()
+	folder_name = "data_from_go_to_2022_12_06_18_40_07.npy" # Go up
+	folder_name = "data_from_go_to_2022_12_06_18_41_55.npy" # Go down
+
+	data = np.load("{0:s}/{1:s}".format(path2data,folder_name))
+
+
+	pdb.set_trace()
 
 	ind_is_zero = data[0,:,0] == 0.0 # Check when the timestamp is zero and remove those values (the program finished before the data logging did...)
 	data = data[:,~ind_is_zero,:]
