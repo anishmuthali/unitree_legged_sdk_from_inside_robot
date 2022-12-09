@@ -5,3 +5,5 @@ build*/
 *.csv
 *.egg-info
 __pycache__
+*.npy
+*.mp4
