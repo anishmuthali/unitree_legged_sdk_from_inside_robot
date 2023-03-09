@@ -134,6 +134,7 @@ PYBIND11_MODULE(robot_interface_go1, m) {
         .def_readwrite("mode", &HighCmd::mode)
         .def_readwrite("position", &HighCmd::postion)
         .def_readwrite("velocity", &HighCmd::velocity)
+        .def_readwrite("gaitType", &HighCmd::gaitType)
         // .def_readwrite("forwardSpeed", &HighCmd::forwardSpeed)
         // .def_readwrite("sideSpeed", &HighCmd::sideSpeed)
         // .def_readwrite("rotateSpeed", &HighCmd::rotateSpeed)
