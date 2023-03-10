@@ -3,8 +3,8 @@ Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
 Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 ************************************************************************/
 
-#ifndef _INTERFACE_REAL_ROBOT_H_
-#define _INTERFACE_REAL_ROBOT_H_
+#ifndef _REAL_ROBOT_INTERFACE_GO1_H_
+#define _REAL_ROBOT_INTERFACE_GO1_H_
 
 
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
@@ -25,11 +25,13 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 using namespace UNITREE_LEGGED_SDK;
 
 typedef Eigen::Matrix<double, 12, 1> Vector12d; // Column vector by default
+// https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
+// (recommended by Eigen only for sizes smaller than roughly 32; larger sue dynamic allocation)
 
-class RobotInterfaceGo1
+class RealRobotInterfaceGo1
 {
 public:
-    RobotInterfaceGo1() : safe(LeggedType::Go1), udp(LOWLEVEL){
+    RealRobotInterfaceGo1() : safe(LeggedType::Go1), udp(LOWLEVEL){
         
         // InitEnvironment();
         // InitializeAllFieldsToZero(); // amarco
@@ -66,11 +68,6 @@ public:
         // But because this class will be always handled from Python, we can do the yaml reading on the python side, easier
         // set_PD_gains(P_gains,D_gains);
 
-
-        // TODO:
-        // Increase efficiency by creating a type: https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
-        // using typedef Matrix<double, 12, 1> Matrix12d (recommended by Eigen only for sizes smaller than roughly 32; larger sue dynamic allocation)
-
         this->clean_format = Eigen::IOFormat(4, 0, ", ", "\n", "[", "]");
 
         // amarco: Can this be avoided?
@@ -105,8 +102,8 @@ public:
 
     }
 
-    ~RobotInterfaceGo1(){
-        std::cout << "Destroying RobotInterfaceGo1 class ...\n";
+    ~RealRobotInterfaceGo1(){
+        std::cout << "Destroying RealRobotInterfaceGo1 class ...\n";
     }
 
     size_t Njoints = 12;
@@ -180,11 +177,11 @@ protected:
 
 
 
-class GymEnvironmentRealGo1 : public RobotInterfaceGo1 {
+class GymEnvironmentRealGo1 : public RealRobotInterfaceGo1 {
 
 public:
 
-    GymEnvironmentRealGo1(): RobotInterfaceGo1(){
+    GymEnvironmentRealGo1(): RealRobotInterfaceGo1(){
 
         double action_std = 0.01;
         actionStd_.setConstant(action_std);
@@ -229,4 +226,4 @@ private:
 };
 
 
-#endif  // _INTERFACE_REAL_ROBOT_H_
+#endif  // _REAL_ROBOT_INTERFACE_GO1_H_

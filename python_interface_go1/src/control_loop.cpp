@@ -2,10 +2,10 @@
 
 
 
-void RobotInterfaceGo1::main(){
+void RealRobotInterfaceGo1::main(){
 
 
-    LoopFunc loop_control("control_loop", deltaT, boost::bind(&RobotInterfaceGo1::ControlLoop, &*this));
+    LoopFunc loop_control("control_loop", deltaT, boost::bind(&RealRobotInterfaceGo1::ControlLoop, &*this));
 
     loop_control.start();
 
@@ -56,7 +56,7 @@ void RobotInterfaceGo1::main(){
 
 
 
-void RobotInterfaceGo1::stand_up(int Nsteps){
+void RealRobotInterfaceGo1::stand_up(int Nsteps){
     /*
 
 

@@ -5,13 +5,13 @@
  * We provide a set of functions to interface with the real robot using Python
 **********************************************************************************************/
 
-#include <python_interface_go1/interface_real_robot.hpp>
+#include <python_interface_go1/real_robot_interface_go1.hpp>
 
 // #include <pybind11/pybind11.h>
 // #include <pybind11/eigen.h> // This header includes #include <Eigen/Core>
 // #include <pybind11/stl.h>
 
-// void RobotInterfaceGo1::InitializeAllFieldsToZero(){
+// void RealRobotInterfaceGo1::InitializeAllFieldsToZero(){
 
 //     // LowState:
 //     state.levelFlag = 0;
@@ -80,13 +80,13 @@
 
 // }
 
-void RobotInterfaceGo1::CollectObservations() {
+void RealRobotInterfaceGo1::CollectObservations() {
     udp.Recv();
     udp.GetRecv(state);
     return;
 }
 
-void RobotInterfaceGo1::update_all_observations() {
+void RealRobotInterfaceGo1::update_all_observations() {
 
     this->update_joint_pos_curr();
     this->update_joint_vel_curr();
@@ -97,7 +97,7 @@ void RobotInterfaceGo1::update_all_observations() {
     return;
 }
 
-void RobotInterfaceGo1::update_joint_pos_curr(){
+void RealRobotInterfaceGo1::update_joint_pos_curr(){
 
     for (int jj = 0; jj < Njoints; jj++){ // amarco: std::array<MotorState, 20> motorState; we only need the first 12 elements, corresponding to the joints
         joint_pos_curr[jj] = state.motorState[jj].q;
@@ -107,7 +107,7 @@ void RobotInterfaceGo1::update_joint_pos_curr(){
     return;
 }
 
-void RobotInterfaceGo1::update_joint_vel_curr(){
+void RealRobotInterfaceGo1::update_joint_vel_curr(){
 
     for (int jj = 0; jj < Njoints; jj++)
         joint_vel_curr[jj] = state.motorState[jj].dq;
@@ -116,7 +116,7 @@ void RobotInterfaceGo1::update_joint_vel_curr(){
 }
 
 
-void RobotInterfaceGo1::update_body_linear_velocity(){
+void RealRobotInterfaceGo1::update_body_linear_velocity(){
 
     // Numerical integration:
     for (int jj = 0; jj < body_linear_velocity.size(); jj++)
@@ -125,7 +125,7 @@ void RobotInterfaceGo1::update_body_linear_velocity(){
     return;
 }
 
-void RobotInterfaceGo1::update_body_angular_velocity(){
+void RealRobotInterfaceGo1::update_body_angular_velocity(){
 
     // Numerical integration:
     for (int jj = 0; jj < body_angular_velocity.size(); jj++)
@@ -135,7 +135,7 @@ void RobotInterfaceGo1::update_body_angular_velocity(){
 }
 
 
-void RobotInterfaceGo1::update_body_orientation(){
+void RealRobotInterfaceGo1::update_body_orientation(){
 
     // Numerical integration:
     for (int jj = 0; jj < body_orientation.size(); jj++)
@@ -144,7 +144,7 @@ void RobotInterfaceGo1::update_body_orientation(){
     return;
 }
 
-void RobotInterfaceGo1::get_joint_pos_curr(Eigen::Ref<Vector12d> joint_pos_curr){
+void RealRobotInterfaceGo1::get_joint_pos_curr(Eigen::Ref<Vector12d> joint_pos_curr){
     joint_pos_curr = joint_pos_curr;
 
     // joint_pos_curr[0] = 100.0; // dbg, this works
@@ -152,7 +152,7 @@ void RobotInterfaceGo1::get_joint_pos_curr(Eigen::Ref<Vector12d> joint_pos_curr)
     return;
 }
 
-void RobotInterfaceGo1::ensure_safety(){
+void RealRobotInterfaceGo1::ensure_safety(){
 
     // Saturate positions:
     safe.PositionLimit(cmd);
@@ -174,7 +174,7 @@ void RobotInterfaceGo1::ensure_safety(){
     return;
 }
 
-void RobotInterfaceGo1::SendCommand(const Eigen::Ref<Vector12d>& joint_pos_des,
+void RealRobotInterfaceGo1::SendCommand(const Eigen::Ref<Vector12d>& joint_pos_des,
                                     const Eigen::Ref<Vector12d>& joint_vel_des,
                                     const Eigen::Ref<Vector12d>& joint_torque_des){
 
@@ -198,7 +198,7 @@ void RobotInterfaceGo1::SendCommand(const Eigen::Ref<Vector12d>& joint_pos_des,
 }
 
 
-void RobotInterfaceGo1::send_desired_position(const Eigen::Ref<Vector12d>& joint_pos_des){
+void RealRobotInterfaceGo1::send_desired_position(const Eigen::Ref<Vector12d>& joint_pos_des){
     /*
 
     Send only desired position, while setting the desired velocity to zero and torque to appropriate values
@@ -226,7 +226,7 @@ void RobotInterfaceGo1::send_desired_position(const Eigen::Ref<Vector12d>& joint
 }
 
 
-void RobotInterfaceGo1::change_operation_mode_inside_robot(void){
+void RealRobotInterfaceGo1::change_operation_mode_inside_robot(void){
 
     /*
     Inform the robot that we are going to control it using lowlevel mode
@@ -252,7 +252,7 @@ void RobotInterfaceGo1::change_operation_mode_inside_robot(void){
 
 }
 
-void RobotInterfaceGo1::set_PD_gains(const Eigen::Ref<Vector12d>& P_gains, const Eigen::Ref<Vector12d>& D_gains){
+void RealRobotInterfaceGo1::set_PD_gains(const Eigen::Ref<Vector12d>& P_gains, const Eigen::Ref<Vector12d>& D_gains){
 
     // std::copy(std::begin(P_gains), std::end(P_gains), std::begin(this->P_gains_));
     // std::copy(std::begin(D_gains), std::end(D_gains), std::begin(this->D_gains_));
@@ -269,18 +269,18 @@ void RobotInterfaceGo1::set_PD_gains(const Eigen::Ref<Vector12d>& P_gains, const
 }
 
 
-void RobotInterfaceGo1::set_deltaT(double deltaT){
+void RealRobotInterfaceGo1::set_deltaT(double deltaT){
     this->deltaT = deltaT;
     std::cout << "Setting deltaT: " << deltaT << " seconds\n";
     std::cout << "deltaT will only we used for state estimation using IMUs\n";
     return;
 }
 
-double RobotInterfaceGo1::get_deltaT(void){
+double RealRobotInterfaceGo1::get_deltaT(void){
     return this->deltaT;
 }
 
-void RobotInterfaceGo1::print_joint_info(std::string name, const Eigen::Ref<Vector12d>& joint_vec){
+void RealRobotInterfaceGo1::print_joint_info(std::string name, const Eigen::Ref<Vector12d>& joint_vec){
 
     std::cout << name << ": " << joint_vec.transpose().format(this->clean_format) << "\n";
 

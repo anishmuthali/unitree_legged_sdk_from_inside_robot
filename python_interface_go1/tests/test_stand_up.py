@@ -2,7 +2,7 @@ import os
 import numpy as np
 import time
 import pdb
-from robot_interface_go1 import RobotInterfaceGo1  # pytype: disable=import-error | amarco: # From motion_imitation/motion_imitation/robots/a1_robot.py
+from real_robot_interface_go1 import RealRobotInterfaceGo1  # pytype: disable=import-error | amarco: # From motion_imitation/motion_imitation/robots/a1_robot.py
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
 
     # pdb.set_trace()
 
-    interface_real_go1 = RobotInterfaceGo1()
+    interface_real_go1 = RealRobotInterfaceGo1()
     interface_real_go1.set_PD_gains(Pgains,Dgains)
 
     Nsteps = 5

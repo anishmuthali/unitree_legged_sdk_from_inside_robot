@@ -1,7 +1,8 @@
 
 
 
-#include <python_interface_go1/interface_real_robot.hpp>
+#include <python_interface_go1/real_robot_interface_go1.hpp>
+// #include <python_interface_go1/real_robot_interface_go1_highlevel.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h> // This header includes #include <Eigen/Core>
@@ -16,11 +17,11 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(robot_interface_go1, m) {
+PYBIND11_MODULE(real_robot_interface_go1, m) {
     m.doc() = R"pbdoc(
           Go1 Robot Interface Python Bindings
           -----------------------
-          .. currentmodule:: robot_interface_go1
+          .. currentmodule:: real_robot_interface_go1
           .. autosummary::
              :toctree: _generate
       )pbdoc";
@@ -161,24 +162,43 @@ PYBIND11_MODULE(robot_interface_go1, m) {
         .def_readwrite("RecvCRCError", &UDPState::RecvCRCError)
         .def_readwrite("RecvLoseError", &UDPState::RecvLoseError);
 
-    py::class_<RobotInterfaceGo1>(m, "RobotInterfaceGo1")
+    py::class_<RealRobotInterfaceGo1>(m, "RealRobotInterfaceGo1")
         // .def(py::init<const std::array<float, 12>, const std::array<float, 12>>())
         .def(py::init<>())
-        .def("collect_observations", &RobotInterfaceGo1::CollectObservations)
-        .def("update_all_observations", &RobotInterfaceGo1::update_all_observations)
-        .def("set_deltaT", &RobotInterfaceGo1::set_deltaT)
-        .def("get_deltaT", &RobotInterfaceGo1::get_deltaT)
-        .def("send_command", &RobotInterfaceGo1::SendCommand)
-        .def("send_desired_position", &RobotInterfaceGo1::send_desired_position)
-        .def("set_PD_gains", &RobotInterfaceGo1::set_PD_gains)
-        .def("get_joint_pos_curr", &RobotInterfaceGo1::get_joint_pos_curr)
-        .def("update_joint_pos_curr", &RobotInterfaceGo1::update_joint_pos_curr)
-        .def("update_joint_vel_curr", &RobotInterfaceGo1::update_joint_vel_curr)
-        .def("update_body_linear_velocity", &RobotInterfaceGo1::update_body_linear_velocity)
-        .def("update_body_angular_velocity", &RobotInterfaceGo1::update_body_angular_velocity)
-        .def("update_body_orientation", &RobotInterfaceGo1::update_body_orientation);
-        // .def("main", &RobotInterfaceGo1::main)
-        // .def("stand_up", &RobotInterfaceGo1::stand_up);
+        .def("collect_observations", &RealRobotInterfaceGo1::CollectObservations)
+        .def("update_all_observations", &RealRobotInterfaceGo1::update_all_observations)
+        .def("set_deltaT", &RealRobotInterfaceGo1::set_deltaT)
+        .def("get_deltaT", &RealRobotInterfaceGo1::get_deltaT)
+        .def("send_command", &RealRobotInterfaceGo1::SendCommand)
+        .def("send_desired_position", &RealRobotInterfaceGo1::send_desired_position)
+        .def("set_PD_gains", &RealRobotInterfaceGo1::set_PD_gains)
+        .def("get_joint_pos_curr", &RealRobotInterfaceGo1::get_joint_pos_curr)
+        .def("update_joint_pos_curr", &RealRobotInterfaceGo1::update_joint_pos_curr)
+        .def("update_joint_vel_curr", &RealRobotInterfaceGo1::update_joint_vel_curr)
+        .def("update_body_linear_velocity", &RealRobotInterfaceGo1::update_body_linear_velocity)
+        .def("update_body_angular_velocity", &RealRobotInterfaceGo1::update_body_angular_velocity)
+        .def("update_body_orientation", &RealRobotInterfaceGo1::update_body_orientation);
+        // .def("main", &RealRobotInterfaceGo1::main)
+        // .def("stand_up", &RealRobotInterfaceGo1::stand_up);
+
+    // py::class_<RealRobotInterfaceGo1HighLevel>(m, "RealRobotInterfaceGo1HighLevel")
+    //     // .def(py::init<const std::array<float, 12>, const std::array<float, 12>>())
+    //     .def(py::init<>())
+    //     .def("get_observations", &RealRobotInterfaceGo1HighLevel::get_observations)
+    //     .def("get_joint_pos_curr", &RealRobotInterfaceGo1HighLevel::get_joint_pos_curr)
+    //     .def("get_joint_vel_curr", &RealRobotInterfaceGo1HighLevel::get_joint_vel_curr)
+    //     .def("get_body_linear_velocity", &RealRobotInterfaceGo1HighLevel::get_body_linear_velocity)
+    //     .def("get_body_angular_velocity", &RealRobotInterfaceGo1HighLevel::get_body_angular_velocity)
+    //     .def("get_body_orientation", &RealRobotInterfaceGo1HighLevel::get_body_orientation)
+    //     .def("update_mode_behavior", &RealRobotInterfaceGo1HighLevel::update_mode_behavior)
+    //     .def("update_gait_type", &RealRobotInterfaceGo1HighLevel::update_gait_type)
+    //     .def("send_linear_and_angular_velocity_commands", &RealRobotInterfaceGo1HighLevel::send_linear_and_angular_velocity_commands)
+    //     .def("send_desired_body_height", &RealRobotInterfaceGo1HighLevel::send_desired_body_height)
+    //     .def("set_deltaT", &RealRobotInterfaceGo1HighLevel::set_deltaT)
+    //     .def("get_deltaT", &RealRobotInterfaceGo1HighLevel::get_deltaT)
+    //     .def("print_joint_info", &RealRobotInterfaceGo1HighLevel::print_joint_info)
+    //     .def("set_IP_and_port_udp", &RealRobotInterfaceGo1HighLevel::set_IP_and_port_udp)
+    //     .def("read_IPs_and_ports", &RealRobotInterfaceGo1HighLevel::read_IPs_and_ports);
 
     py::class_<GymEnvironmentRealGo1>(m, "GymEnvironmentRealGo1")
         .def(py::init<>())
