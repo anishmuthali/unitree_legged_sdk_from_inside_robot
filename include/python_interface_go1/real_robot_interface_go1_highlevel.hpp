@@ -22,10 +22,14 @@ typedef Eigen::Matrix<double, 12, 1> Vector12d; // Column vector by default
 class RealRobotInterfaceGo1HighLevel
 {
 public:
-    RealRobotInterfaceGo1HighLevel() : safe(LeggedType::Go1), udp(HIGHLEVEL){
+    // RealRobotInterfaceGo1HighLevel() : safe(LeggedType::Go1), udp(HIGHLEVEL){
     // RealRobotInterfaceGo1HighLevel() :  safe(LeggedType::Go1), udp(8090, "192.168.123.161", 8082, sizeof(HighCmd), sizeof(HighState)){
+    RealRobotInterfaceGo1HighLevel() :  safe(LeggedType::Go1), udp(8090, "192.168.12.1", 8082, sizeof(HighCmd), sizeof(HighState)){
+    // RealRobotInterfaceGo1HighLevel(uint16_t localPort, const char* targetIP, uint16_t targetPort) :  safe(LeggedType::Go1) {
+
+        // this->udp = UDP(localPort,targetIP,targetPort);
         
-        udp.InitCmdData(this->cmd);
+        this->udp.InitCmdData(this->cmd);
 
         this->clean_format = Eigen::IOFormat(4, 0, ", ", "\n", "[", "]");
 

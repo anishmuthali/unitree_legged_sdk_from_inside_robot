@@ -79,6 +79,9 @@ void RealRobotInterfaceGo1HighLevel::update_mode_behavior(uint8_t mode_behavior)
         this->cmd.mode = mode_behavior;        
     }
 
+    this->udp.SetSend(this->cmd);
+    this->udp.Send();
+
     return;
 }
 
@@ -93,12 +96,15 @@ void RealRobotInterfaceGo1HighLevel::update_gait_type(uint8_t gait_type){
         this->cmd.gaitType = gait_type;        
     }
 
+    this->udp.SetSend(this->cmd);
+    this->udp.Send();
+
     return;
 }
 
 void RealRobotInterfaceGo1HighLevel::send_linear_and_angular_velocity_commands(float forwardSpeed, float sideSpeed, float yawSpeed){
 
-    if(forwardSpeed <= -1.0 || forwardSpeed >= 1.0){
+    if(forwardSpeed < -1.0 || forwardSpeed > 1.0){
         std::cout << "Requested forwardSpeed is incorrect; must in range [0.0,1.0]\n";
         return;
     }
@@ -123,7 +129,7 @@ void RealRobotInterfaceGo1HighLevel::send_linear_and_angular_velocity_commands(f
 
 void RealRobotInterfaceGo1HighLevel::send_desired_body_height(float bodyHeight){
 
-    if(bodyHeight <= 0.0 || bodyHeight >= 0.30){
+    if(bodyHeight < 0.0 || bodyHeight > 0.30){
         std::cout << "Requested body height is incorrect; must be between 0.0m and 0.30m\n";
     }
 
