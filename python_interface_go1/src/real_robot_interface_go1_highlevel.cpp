@@ -74,6 +74,7 @@ void RealRobotInterfaceGo1HighLevel::update_mode_behavior(uint8_t mode_behavior)
 
     if(mode_behavior != 0 && mode_behavior != 1 && mode_behavior != 2){
         std::cout << "Requested mode is unaccepted; only modes {0: idle; 1: force stand; 2: walking with target velocity} admitted\n";
+        return;
     }
     else{
         this->cmd.mode = mode_behavior;        
@@ -91,6 +92,7 @@ void RealRobotInterfaceGo1HighLevel::update_gait_type(uint8_t gait_type){
 
     if(gait_type != 0 && gait_type != 1){
         std::cout << "Requested mode is unaccepted; only modes {0: idle; 1: trot} admitted\n";
+        return;
     }
     else{
         this->cmd.gaitType = gait_type;        
@@ -105,7 +107,7 @@ void RealRobotInterfaceGo1HighLevel::update_gait_type(uint8_t gait_type){
 void RealRobotInterfaceGo1HighLevel::send_linear_and_angular_velocity_commands(float forwardSpeed, float sideSpeed, float yawSpeed){
 
     if(forwardSpeed < -1.0 || forwardSpeed > 1.0){
-        std::cout << "Requested forwardSpeed is incorrect; must in range [0.0,1.0]\n";
+        std::cout << "Requested forwardSpeed is incorrect; must be within range [0,1]\n";
         return;
     }
 
@@ -129,8 +131,9 @@ void RealRobotInterfaceGo1HighLevel::send_linear_and_angular_velocity_commands(f
 
 void RealRobotInterfaceGo1HighLevel::send_desired_body_height(float bodyHeight){
 
-    if(bodyHeight < 0.0 || bodyHeight > 0.30){
-        std::cout << "Requested body height is incorrect; must be between 0.0m and 0.30m\n";
+    if(bodyHeight < -0.1 || bodyHeight > +0.1){
+        std::cout << "Requested body height is incorrect. Accepted values are between -0.1m and +0.1m. The requested body height is relative to current height and is restricted for safety.\n";
+        return;
     }
 
     // this->cmd.levelFlag = 0x00;
