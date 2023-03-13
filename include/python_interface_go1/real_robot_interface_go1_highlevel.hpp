@@ -76,7 +76,7 @@ public:
     void get_body_orientation(void);
 
     void update_mode_behavior(uint8_t mode_behavior);
-    void update_gait_type(uint8_t mode_behavior);
+    void update_gait_type(uint8_t gait_type);
 
     void send_linear_and_angular_velocity_commands(float forwardSpeed, float sideSpeed, float yawSpeed);
     void send_desired_body_height(float bodyHeight);
