@@ -1,12 +1,28 @@
-/**********************************************************************************************
-
-**********************************************************************************************/
+/************************************************************************
+*
+* @brief Wrapper around Unitree's UDP communication protocol
+* This class is meant to 
+*     (i)  be compiled as a Python module using pybind11
+*     (ii) be the parent class of ROS interfaces to publish the UDP readings
+* 
+*
+* @author Alonso Marco
+* Contact: amarco@berkeley.edu
+************************************************************************/
 
 #include <python_interface_go1/real_robot_interface_go1_highlevel.hpp>
 
 void RealRobotInterfaceGo1HighLevel::_collect_observations() {
     this->udp.Recv();
     this->udp.GetRecv(this->state);
+
+    // DBG:
+    for(int i=0; i<4; ++i){
+        std::cout << "\nRealRobotInterfaceGo1HighLevel::_collect_observations:\n";
+        std::cout << "this->state.footForce[i]: " << this->state.footForce[i] << "\n";
+        std::cout << "this->state.footForceEst[i]: " << this->state.footForceEst[i] << "\n";
+    }
+
     return;
 }
 

@@ -1,6 +1,13 @@
 /************************************************************************
-Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
-Use of this source code is governed by the MPL-2.0 license, see LICENSE.
+*
+* @brief Wrapper around Unitree's UDP communication protocol
+* This class is meant to 
+*     (i)  be compiled as a Python module using pybind11
+*     (ii) be the parent class of ROS interfaces to publish the UDP readings
+* 
+*
+* @author Alonso Marco
+* Contact: amarco@berkeley.edu
 ************************************************************************/
 
 #ifndef _REAL_ROBOT_INTERFACE_GO1_HIGHLEVEL_H_
