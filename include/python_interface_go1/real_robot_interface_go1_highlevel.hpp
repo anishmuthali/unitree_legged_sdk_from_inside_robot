@@ -36,7 +36,21 @@ public:
 
         // this->udp = UDP(localPort,targetIP.c_str(),targetPort,sizeof(HighCmd),sizeof(HighState));
 
+
+        this->cmd.velocity[0] = 0.0;
+        this->cmd.velocity[1] = 0.0;
+        this->cmd.yawSpeed = 0.0;
+        this->cmd.postion[0] = 0.0;
+        this->cmd.postion[1] = 0.0;
+
         this->udp.InitCmdData(this->cmd);
+
+        std::cout << "this->cmd.velocity[0] = " << this->cmd.velocity[0] << "\n";
+        std::cout << "this->cmd.velocity[1] = " << this->cmd.velocity[1] << "\n";
+        std::cout << "this->cmd.yawSpeed = " << this->cmd.yawSpeed << "\n";
+        std::cout << "this->cmd.postion[0] = " << this->cmd.postion[0] << "\n";
+        std::cout << "this->cmd.postion[1] = " << this->cmd.postion[1] << "\n";
+
 
         this->clean_format = Eigen::IOFormat(4, 0, ", ", "\n", "[", "]");
 
@@ -60,6 +74,8 @@ public:
         std::cout << "\nOther parameters:\n";
         std::cout << " * deltaT: " << deltaT << "\n";
         std::cout << " * Njoints: " << Njoints << "\n";
+
+
 
 
         this->_activate_highlevel_mode_inside_robot();
