@@ -17,7 +17,7 @@
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <array>
 #include <math.h>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 #include <iostream>
 
 using namespace UNITREE_LEGGED_SDK;
